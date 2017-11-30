@@ -2,7 +2,7 @@ var webpack = require('webpack');
 
 module.exports = {
     entry: {
-        'main': './src/scripts/main.ts'
+        'SierraData': './src/scripts/SierraData.ts'
     },
     output: {
         filename: './dist/bundle/[name].min.js',
