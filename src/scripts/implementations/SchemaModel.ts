@@ -43,7 +43,7 @@ export interface IDataDefinition {
 
 }
 
-export interface ISchemaDocument<T extends IMethods> extends mongoose.Document, IDataDefinition, T {
+export interface ISchemaDocument<T extends IMethods> extends mongoose.Document, IDataDefinition {
 }
 
-export default mongoose.model<ISchemaDocument>('User', SchemaModel.schema);
+// export default mongoose.model<ISchemaDocument>('User', SchemaModel.schema);

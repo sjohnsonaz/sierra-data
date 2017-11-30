@@ -1,8 +1,8 @@
-import { route } from 'sierra';
+import { route, IMiddleware } from 'sierra';
 import Service from './Service';
 import Gateway from './Gateway';
 
-export default class CrudService<T, U, V extends Gateway<any>> extends Service<T, U, V> {
+export default class CrudService<T, U extends IMiddleware, V extends Gateway<any>> extends Service<T, U, V> {
     constructor(base: string, gateway: V) {
         super(base, gateway);
     }
