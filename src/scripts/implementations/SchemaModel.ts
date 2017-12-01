@@ -3,24 +3,26 @@ import * as mongoose from 'mongoose';
 import { IData } from '../interfaces/IData';
 import { IMethods } from '../interfaces/IMethods';
 
-abstract class Schema<U extends IMethods> extends mongoose.Schema {
+export abstract class Schema<U extends IMethods> extends mongoose.Schema {
     methods: U;
 }
 
 export abstract class SchemaModel<T extends IData, U extends IMethods> {
+    collection: string;
     schema: Schema<U>;
     model: mongoose.Model<T & U & mongoose.Document>;
 
     constructor(collection: string) {
-        this.init();
-        this.model = mongoose.model<T & U & mongoose.Document>(collection, this.schema);
+        this.init(collection);
     }
 
-    init() {
+    init(collection: string) {
+        this.collection = collection;
         this.initSchema();
         this.initMethods();
         this.initIndex();
         this.initEventHandlers();
+        this.model = mongoose.model<T & U & mongoose.Document>(collection, this.schema);
     }
 
     initSchema() {
