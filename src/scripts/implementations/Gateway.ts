@@ -1,23 +1,26 @@
 import * as mongoose from 'mongoose';
 
 import { IData } from '../interfaces/IData';
+import { IMethods } from '../interfaces/IMethods';
 import { IQuery } from '../interfaces/IQuery';
 import { IQueryResult } from '../interfaces/IQueryResult';
 
-export default class Gateway<T extends IData, U extends IQuery> {
-    modelType: mongoose.Model<T & mongoose.Document>;
+import { SchemaModel } from './SchemaModel';
 
-    constructor(modelType: mongoose.Model<T & mongoose.Document>) {
-        this.modelType = modelType;
+export default class Gateway<T extends IData, V extends SchemaModel<T, any>, U extends IQuery> {
+    schemaModel: V;
+
+    constructor(schemaModel:V) {
+        this.schemaModel = schemaModel;
     }
 
     create(data: T) {
-        var model = new this.modelType(data);
+        var model = new this.schemaModel.model(data);
         return model.save();
     }
 
     get(id: string) {
-        return this.modelType.findOne({
+        return this.schemaModel.model.findOne({
             _id: id
         }).exec();
     }
@@ -36,9 +39,9 @@ export default class Gateway<T extends IData, U extends IQuery> {
         var pageSize: number | string = typeof params.pageSize === 'string' ? params.pageSize || 20 : params.pageSize;
         var sort = params.sort;
 
-        let count = await this.modelType.find(find).count().exec();
+        let count = await this.schemaModel.model.find(find).count().exec();
 
-        var query = this.modelType.find(find);
+        var query = this.schemaModel.model.find(find);
         if (select) {
             query = query.select(select);
         }
@@ -59,7 +62,7 @@ export default class Gateway<T extends IData, U extends IQuery> {
     }
 
     update(id: string, data: T | { $set: U }) {
-        return this.modelType.update({
+        return this.schemaModel.model.update({
             _id: id
         }, data, {
                 runValidators: true
@@ -67,13 +70,13 @@ export default class Gateway<T extends IData, U extends IQuery> {
     }
 
     updateQuery(query: Object, data: T | { $set: U }) {
-        return this.modelType.update(query, data, {
+        return this.schemaModel.model.update(query, data, {
             runValidators: true
         }).exec();
     }
 
     delete(id) {
-        return this.modelType.remove({
+        return this.schemaModel.model.remove({
             _id: id
         }).exec();
     }
