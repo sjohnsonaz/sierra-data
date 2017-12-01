@@ -1,7 +1,7 @@
 {
   "name": "sierra-data",
   "version": "0.0.0",
-  "description": "",
+  "description": "Data support with Gateways and Services for Sierra",
   "repository": "https://www.github.com/sjohnsonaz/sierra-data.git",
   "license": "MIT",
   "author": "Sean Johnson <sjohnson@sjohnsonaz.com>",
