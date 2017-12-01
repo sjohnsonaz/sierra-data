@@ -4,10 +4,10 @@ import Gateway from './Gateway';
 import { IData } from '../interfaces/IData';
 import { IQuery } from '../interfaces/IQuery';
 
-export default class Service<T, U extends IMiddleware, V extends IData, W extends IQuery, X extends Gateway<V, any, W>> extends Controller<T, U> {
-    gateway: X;
+export default class Service<T, U extends IMiddleware, V extends Gateway<any, any, any>> extends Controller<T, U> {
+    gateway: V;
 
-    constructor(base: string, gateway: X) {
+    constructor(base: string, gateway: V) {
         super();
         this.gateway = gateway;
     }
