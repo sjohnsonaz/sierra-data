@@ -1,13 +1,19 @@
 import * as mongoose from 'mongoose';
 
-export interface IMethods {
-    [index: string]: () => any;
+import { IData } from '../interfaces/IData';
+import { IMethods } from '../interfaces/IMethods';
+
+abstract class Schema<U extends IMethods> extends mongoose.Schema {
+    methods: U;
 }
 
-export abstract class SchemaModel<T extends IMethods> {
-    schema: mongoose.Schema;
-    constructor() {
+export abstract class SchemaModel<T extends IData, U extends IMethods> {
+    schema: Schema<U>;
+    model: mongoose.Model<T & U & mongoose.Document>;
 
+    constructor(collection: string) {
+        this.init();
+        this.model = mongoose.model<T & U & mongoose.Document>(collection, this.schema);
     }
 
     init() {
@@ -34,16 +40,7 @@ export abstract class SchemaModel<T extends IMethods> {
     }
 
     abstract defineSchema(): mongoose.SchemaDefinition;
-    abstract defineMethods(): T;
+    abstract defineMethods(): U;
     abstract defineIndex(): { [index: string]: number }
     abstract defineEventHandlers(schema: mongoose.Schema);
 }
-
-export interface IDataDefinition {
-
-}
-
-export interface ISchemaDocument<T extends IMethods> extends mongoose.Document, IDataDefinition {
-}
-
-// export default mongoose.model<ISchemaDocument>('User', SchemaModel.schema);

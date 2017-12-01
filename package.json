@@ -12,9 +12,7 @@
     "build": "tsc",
     "prepublishOnly": "tsc --declaration",
     "test": "tsc && node src/mocha/NodeRunner.js",
-    "min": "webpack --config webpack.config.js --progress",
-    "dev": "webpack --config webpack.dev.config.js --progress",
-    "watch": "webpack --config webpack.dev.config.js --watch --progress",
+    "watch": "tsc --watch",
     "node": "node ./dist/scripts/SierraData.js",
     "nodemon": "nodemon ./dist/scripts/SierraData.js",
     "mkdocs": "mkdocs build",
@@ -26,18 +24,15 @@
     "sierra": "0.0.2"
   },
   "devDependencies": {
-    "@types/chai": "4.0.1",
-    "@types/express": "^4.0.36",
-    "@types/mocha": "2.2.41",
-    "@types/mongoose": "^4.7.19",
-    "chai": "4.1.0",
-    "jsdom": "11.1.0",
-    "mocha": "3.5.0",
-    "mongoose": "^4.11.5",
-    "nodemon": "1.11.0",
+    "@types/chai": "4.0.6",
+    "@types/express": "4.0.39",
+    "@types/mocha": "2.2.44",
+    "@types/mongoose": "4.7.28",
+    "chai": "4.1.2",
+    "mocha": "4.0.1",
+    "mongoose": "4.13.5",
+    "nodemon": "1.12.1",
     "sierra": "0.0.2",
-    "ts-loader": "2.3.2",
-    "typescript": "2.4.2",
-    "webpack": "3.4.1"
+    "typescript": "2.6.2"
   }
 }

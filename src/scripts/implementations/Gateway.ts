@@ -1,34 +1,34 @@
 import * as mongoose from 'mongoose';
 
-export interface QueryResult<T extends mongoose.Document> {
-    count: number;
-    results: T[];
-}
+import { IData } from '../interfaces/IData';
+import { IQuery } from '../interfaces/IQuery';
+import { IQueryResult } from '../interfaces/IQueryResult';
 
-export default class Gateway<T extends mongoose.Document> {
-    modelType: mongoose.Model<T>;
-    constructor(modelType: mongoose.Model<T>) {
+export default class Gateway<T extends IData, U extends IQuery> {
+    modelType: mongoose.Model<T & mongoose.Document>;
+
+    constructor(modelType: mongoose.Model<T & mongoose.Document>) {
         this.modelType = modelType;
     }
 
-    create(data, callback: (err: any, res: any) => void) {
-        var user = new this.modelType(data);
-        user.save(callback);
+    create(data: T) {
+        var model = new this.modelType(data);
+        return model.save();
     }
 
-    get(id, callback: (err: any, res: T) => void) {
-        this.modelType.findOne({
+    get(id: string) {
+        return this.modelType.findOne({
             _id: id
-        }, callback);
+        }).exec();
     }
 
-    list(params: {
-        find: any;
-        select: any;
+    async list(params: {
+        find: U;
+        select: string;
         page: number;
-        pageSize: number;
+        pageSize: number | 'all';
         sort: any;
-    }, callback: (err: any, res?: QueryResult<T>) => void) {
+    }): Promise<IQueryResult<T & mongoose.Document>> {
         params = params || {} as any;
         var find = params.find || {};
         var select = params.select;
@@ -36,45 +36,45 @@ export default class Gateway<T extends mongoose.Document> {
         var pageSize: number | string = typeof params.pageSize === 'string' ? params.pageSize || 20 : params.pageSize;
         var sort = params.sort;
 
-        this.modelType.find(find).count((err, count) => {
-            if (!err) {
-                var query = this.modelType.find(find);
-                if (select) {
-                    query = query.select(select);
-                }
-                if (pageSize !== 'all') {
-                    query = query.skip(page * (pageSize as number)).limit(pageSize as number);
-                }
-                if (sort) {
-                    query.sort(sort);
-                }
-                query.exec((err, result) => {
-                    if (!err) {
-                        callback(err, {
-                            count: count,
-                            results: result
-                        });
-                    } else {
-                        callback(err);
-                    }
-                });
-            } else {
-                callback(err);
-            }
-        });
+        let count = await this.modelType.find(find).count().exec();
+
+        var query = this.modelType.find(find);
+        if (select) {
+            query = query.select(select);
+        }
+        if (pageSize !== 'all') {
+            query = query.skip(page * (pageSize as number))
+                .limit(pageSize as number);
+        }
+        if (sort) {
+            query = query.sort(sort);
+        }
+
+        let data = await query.exec();
+
+        return {
+            count: count,
+            results: data
+        };
     }
 
-    update(id, data, callback: (err: any, raw: any) => void) {
-        this.modelType.update({
+    update(id: string, data: T | { $set: U }) {
+        return this.modelType.update({
             _id: id
         }, data, {
                 runValidators: true
-            }, callback);
+            }).exec();
     }
 
-    delete(id, callback: (err: any) => void) {
-        this.modelType.remove({
+    updateQuery(query: Object, data: T | { $set: U }) {
+        return this.modelType.update(query, data, {
+            runValidators: true
+        }).exec();
+    }
+
+    delete(id) {
+        return this.modelType.remove({
             _id: id
-        }, callback);
+        }).exec();
     }
 }
