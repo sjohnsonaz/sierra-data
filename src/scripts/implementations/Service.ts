@@ -1,10 +1,10 @@
-import { route, IMiddleware, Controller } from 'sierra';
+import { method, IMiddleware, Controller } from 'sierra';
 import Gateway from './Gateway';
 
 import { IData } from '../interfaces/IData';
 import { IQuery } from '../interfaces/IQuery';
 
-export default class Service<T, U extends IMiddleware, V extends Gateway<any, any, any>> extends Controller<T, U> {
+export default class Service<V extends Gateway<any, any, any>> extends Controller {
     gateway: V;
 
     constructor(base: string, gateway: V) {
@@ -12,70 +12,43 @@ export default class Service<T, U extends IMiddleware, V extends Gateway<any, an
         this.gateway = gateway;
     }
 
-    @route('get', '/:id', false)
-    async get(req, res, next) {
-        try {
-            let result = await this.gateway.get(req.params.id);
-            res.json(result);
-        }
-        catch (e) {
-            next(e);
-        }
+    @method('get', '/:id')
+    async get(id: string) {
+        return this.gateway.get(id);
     }
 
-    @route('get', '/', false)
-    async list(req, res, next) {
-        try {
-            let result = await this.gateway.list({
-                find: {} as any,
-                select: undefined,
-                page: req.query.page,
-                pageSize: req.query.pageSize,
-                sort: (function () {
-                    if (req.query.sortedColumn) {
-                        var output = {};
-                        output[req.query.sortedColumn] = (req.query.sortedDirection === undefined || req.query.sortedDirection) ? 1 : -1;
-                        return output;
-                    }
-                })()
-            });
-            res.json(result);
-        }
-        catch (e) {
-            next(e);
-        }
+    @method('get', '/')
+    async list(page: number, pageSize: number, sortedColumn: string, sortedDirection: number) {
+        return this.gateway.list({
+            find: {} as any,
+            select: undefined,
+            page: page,
+            pageSize: pageSize,
+            sort: (function () {
+                if (sortedColumn) {
+                    var output = {};
+                    output[sortedColumn] = (sortedDirection === undefined || sortedDirection) ? 1 : -1;
+                    return output;
+                }
+            })()
+        });
     }
 
-    @route('post', '/', false)
-    async post(req, res, next) {
-        try {
-            let result = await this.gateway.create(req.body);
-            res.json(result._id);
-        }
-        catch (e) {
-            next(e);
-        }
+    @method('post', '/')
+    async post($body) {
+        let result = await this.gateway.create($body);
+        return result._id;
     }
 
-    @route('put', '/:id', false)
-    async put(req, res, next) {
-        try {
-            let result = await this.gateway.update(req.params.id, req.body);
-            res.json(result.ok);
-        }
-        catch (e) {
-            next(e);
-        }
+    @method('put', '/:id')
+    async put(id: string, $body) {
+        let result = await this.gateway.update(id, $body);
+        return true;
     }
 
-    @route('delete', '/:id', false)
-    async delete(req, res, next) {
-        try {
-            await this.gateway.delete(req.params.id);
-            res.json(true);
-        }
-        catch (e) {
-            next(e);
-        }
+    @method('delete', '/:id')
+    async delete(id: string) {
+        await this.gateway.delete(id);
+        return true;
     }
 }

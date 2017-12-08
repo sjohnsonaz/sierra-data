@@ -21,18 +21,17 @@
   },
   "peerDependencies": {
     "mongoose": "^4.11.5",
-    "sierra": "0.0.2"
+    "sierra": "0.0.12"
   },
   "devDependencies": {
     "@types/chai": "4.0.6",
-    "@types/express": "4.0.39",
     "@types/mocha": "2.2.44",
     "@types/mongoose": "4.7.28",
     "chai": "4.1.2",
     "mocha": "4.0.1",
     "mongoose": "4.13.5",
     "nodemon": "1.12.1",
-    "sierra": "0.0.2",
+    "sierra": "0.0.12",
     "typescript": "2.6.2"
   }
 }
