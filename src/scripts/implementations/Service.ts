@@ -3,6 +3,7 @@ import Gateway from './Gateway';
 
 import { IData } from '../interfaces/IData';
 import { IQuery } from '../interfaces/IQuery';
+import { IQueryResult } from '../interfaces/IQueryResult';
 
 export default class Service<V extends Gateway<any, any, any>> extends Controller {
     gateway: V;
