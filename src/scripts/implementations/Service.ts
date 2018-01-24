@@ -19,12 +19,18 @@ export default class Service<V extends Gateway<any, any, any>> extends Controlle
     }
 
     @method('get', '/')
-    async list(page: number, pageSize: number, sortedColumn: string, sortedDirection: number) {
+    async list(offset: string, limit: string, sortedColumn: string, sortedDirection: any) {
+        let _offset = parseInt(offset);
+        let _limit = parseInt(limit);
+        // Prevent limit from being NaN, Inifinity, or 0
+        if (!_limit || isNaN(_limit) || !isFinite(_limit)) {
+            _limit = 20;
+        }
         return this.gateway.list({
             find: {} as any,
             select: undefined,
-            page: page,
-            pageSize: pageSize,
+            offset: _offset,
+            limit: _limit,
             sort: (function () {
                 if (sortedColumn) {
                     var output = {};

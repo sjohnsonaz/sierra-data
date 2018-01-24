@@ -10,7 +10,7 @@ import { SchemaModel } from './SchemaModel';
 export default class Gateway<T extends IData, V extends SchemaModel<T, any>, U extends IQuery> {
     schemaModel: V;
 
-    constructor(schemaModel:V) {
+    constructor(schemaModel: V) {
         this.schemaModel = schemaModel;
     }
 
@@ -28,15 +28,15 @@ export default class Gateway<T extends IData, V extends SchemaModel<T, any>, U e
     async list(params: {
         find: U;
         select: string;
-        page: number;
-        pageSize: number | 'all';
+        offset: number;
+        limit: number;
         sort: any;
     }): Promise<IQueryResult<T & mongoose.Document>> {
         params = params || {} as any;
         var find = params.find || {};
         var select = params.select;
-        var page = params.page || 0;
-        var pageSize: number | string = typeof params.pageSize === 'string' ? params.pageSize || 20 : params.pageSize;
+        var offset = params.offset;
+        var limit = params.limit;
         var sort = params.sort;
 
         let count = await this.schemaModel.model.find(find).count().exec();
@@ -45,9 +45,9 @@ export default class Gateway<T extends IData, V extends SchemaModel<T, any>, U e
         if (select) {
             query = query.select(select);
         }
-        if (pageSize !== 'all') {
-            query = query.skip(page * (pageSize as number))
-                .limit(pageSize as number);
+        if (limit !== 0) {
+            query = query.skip(offset || 0)
+                .limit(limit);
         }
         if (sort) {
             query = query.sort(sort);
