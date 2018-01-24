@@ -10,8 +10,9 @@
   "scripts": {
     "start": "node ./dist/scripts/SierraData.js",
     "build": "tsc",
-    "prepublishOnly": "tsc --declaration",
+    "prepublishOnly": "rimraf ./dist && tsc --declaration",
     "test": "tsc && node src/mocha/NodeRunner.js",
+    "clean": "rimraf ./dist",
     "watch": "tsc --watch",
     "node": "node ./dist/scripts/SierraData.js",
     "nodemon": "nodemon ./dist/scripts/SierraData.js",
@@ -31,6 +32,7 @@
     "mocha": "4.0.1",
     "mongoose": "4.13.5",
     "nodemon": "1.12.1",
+    "rimraf": "^2.6.2",
     "sierra": "0.3.1",
     "typescript": "2.6.2"
   }
