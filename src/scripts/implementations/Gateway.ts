@@ -7,15 +7,15 @@ import { IQueryResult } from '../interfaces/IQueryResult';
 
 import { SchemaModel } from './SchemaModel';
 
-export default class Gateway<T extends IData, V extends SchemaModel<T, any>, U extends IQuery> {
-    schemaModel: V;
+export default class Gateway<T extends IData, U extends IQuery, V extends IMethods, W extends SchemaModel<T, V>> {
+    schemaModel: W;
 
-    constructor(schemaModel: V) {
+    constructor(schemaModel: W) {
         this.schemaModel = schemaModel;
     }
 
     create(data: T) {
-        var model = new this.schemaModel.model(data);
+        var model: mongoose.Document = new this.schemaModel.model(data);
         return model.save();
     }
 
@@ -61,7 +61,7 @@ export default class Gateway<T extends IData, V extends SchemaModel<T, any>, U e
         };
     }
 
-    update(id: string, data: T | { $set: U }) {
+    update(id: string, data: T | { $set: Partial<T> }) {
         return this.schemaModel.model.update({
             _id: id
         }, data, {
@@ -69,13 +69,13 @@ export default class Gateway<T extends IData, V extends SchemaModel<T, any>, U e
             }).exec();
     }
 
-    updateQuery(query: Object, data: T | { $set: U }) {
+    updateQuery(query: Object, data: T | { $set: Partial<T> }) {
         return this.schemaModel.model.update(query, data, {
             runValidators: true
         }).exec();
     }
 
-    delete(id) {
+    delete(id: string) {
         return this.schemaModel.model.remove({
             _id: id
         }).exec();

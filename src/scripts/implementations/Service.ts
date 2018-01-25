@@ -5,7 +5,7 @@ import { IData } from '../interfaces/IData';
 import { IQuery } from '../interfaces/IQuery';
 import { IQueryResult } from '../interfaces/IQueryResult';
 
-export default class Service<V extends Gateway<any, any, any>> extends Controller {
+export default class Service<T extends IData, V extends Gateway<T, any, any, any>> extends Controller {
     gateway: V;
 
     constructor(base: string, gateway: V) {
@@ -13,13 +13,8 @@ export default class Service<V extends Gateway<any, any, any>> extends Controlle
         this.gateway = gateway;
     }
 
-    @method('get', '/:id')
-    async get(id: string) {
-        return this.gateway.get(id);
-    }
-
-    @method('get', '/')
-    async list(offset: string, limit: string, sortedColumn: string, sortedDirection: any) {
+    @method('get')
+    async index(offset: string, limit: string, sortedColumn: string, sortedDirection: any) {
         let _offset = parseInt(offset);
         let _limit = parseInt(limit);
         // Prevent limit from being NaN, Inifinity, or 0
@@ -41,14 +36,19 @@ export default class Service<V extends Gateway<any, any, any>> extends Controlle
         });
     }
 
-    @method('post', '/')
-    async post($body) {
+    @method('get', '/:id')
+    async get(id: string) {
+        return this.gateway.get(id);
+    }
+
+    @method('post')
+    async post($body: T) {
         let result = await this.gateway.create($body);
         return result._id;
     }
 
     @method('put', '/:id')
-    async put(id: string, $body) {
+    async put(id: string, $body: T) {
         let result = await this.gateway.update(id, $body);
         return true;
     }
