@@ -23,7 +23,7 @@
   },
   "peerDependencies": {
     "mongoose": "^4.11.5",
-    "sierra": "0.3.1"
+    "sierra": "0.3.3"
   },
   "devDependencies": {
     "@types/chai": "4.0.6",
@@ -34,7 +34,7 @@
     "mongoose": "4.13.5",
     "nodemon": "1.12.1",
     "rimraf": "^2.6.2",
-    "sierra": "0.3.1",
+    "sierra": "0.3.3",
     "typescript": "2.6.2"
   }
 }
