@@ -1,3 +1,5 @@
+import * as mongoose from 'mongoose';
+
 import { method, IMiddleware, Controller } from 'sierra';
 import Gateway from './Gateway';
 
