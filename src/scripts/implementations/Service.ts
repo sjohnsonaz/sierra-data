@@ -7,10 +7,10 @@ import { IData } from '../interfaces/IData';
 import { IQuery } from '../interfaces/IQuery';
 import { IQueryResult } from '../interfaces/IQueryResult';
 
-export default class Service<T extends IData, V extends Gateway<T, any, any, any>> extends Controller {
-    gateway: V;
+export default class Service<T extends IData, U extends Gateway<T, any, any>> extends Controller {
+    gateway: U;
 
-    constructor(base: string, gateway: V) {
+    constructor(base: string, gateway: U) {
         super();
         this.gateway = gateway;
     }

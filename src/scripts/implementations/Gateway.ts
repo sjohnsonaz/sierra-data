@@ -7,10 +7,10 @@ import { IQueryResult } from '../interfaces/IQueryResult';
 
 import { SchemaModel } from './SchemaModel';
 
-export default class Gateway<T extends IData, U extends IQuery, V extends IMethods, W extends SchemaModel<T, V>> {
-    schemaModel: W;
+export default class Gateway<T extends IData, U extends IMethods, V extends SchemaModel<T, U>> {
+    schemaModel: V;
 
-    constructor(schemaModel: W) {
+    constructor(schemaModel: V) {
         this.schemaModel = schemaModel;
     }
 
@@ -26,7 +26,7 @@ export default class Gateway<T extends IData, U extends IQuery, V extends IMetho
     }
 
     async list(params: {
-        find: U;
+        find: IQuery<T>;
         select: string;
         offset: number;
         limit: number;
