@@ -11,7 +11,7 @@ export default class Service<T extends IData, U extends Gateway<T, any, any>> ex
     gateway: U;
 
     constructor(base: string, gateway: U) {
-        super();
+        super(base);
         this.gateway = gateway;
     }
 
