@@ -7,6 +7,10 @@ export abstract class Schema<U extends IMethods> extends mongoose.Schema {
     methods: U;
 }
 
+export declare type ISchemaDefinition<T> = {
+    [P in keyof T]: mongoose.SchemaTypeOpts<any> | mongoose.Schema | mongoose.SchemaType;
+}
+
 export abstract class SchemaModel<T extends IData, U extends IMethods> {
     collection: string;
     schema: Schema<U>;
