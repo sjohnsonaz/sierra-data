@@ -45,7 +45,7 @@ export abstract class SchemaModel<T extends IData, U extends IMethods> {
         this.defineEventHandlers(this.schema);
     }
 
-    abstract defineSchema(): mongoose.SchemaDefinition;
+    abstract defineSchema(): ISchemaDefinition<T>;
     abstract defineMethods(): U;
     abstract defineIndex(): { [index: string]: number }
     abstract defineEventHandlers(schema: mongoose.Schema);
