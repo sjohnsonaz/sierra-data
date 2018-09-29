@@ -1,8 +1,9 @@
-function index(fields: Object, options?: {
-    expires?: string;
-    [other: string]: any;
-}) {
-    return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-        //descriptor.enumerable = value;
+import Model from './Model';
+import ModelDefinition, { IPropertyConfig } from './ModelDefinition';
+
+export function prop<T extends Model<any>>(config?: IPropertyConfig) {
+    return function (target: T, propertyKey: string): void {
+        let modelDefinition = ModelDefinition.getModelDefinition(target);
+        modelDefinition.addConfig(propertyKey, config || {});
     };
 }

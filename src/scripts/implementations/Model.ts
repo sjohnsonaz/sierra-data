@@ -1,12 +1,44 @@
+import { ObjectID } from "bson";
+
+import ModelDefinition from './ModelDefinition';
+import { prop } from './Decorators';
+
+export interface IModel {
+    _id: ObjectID;
+}
+
 export default class Model<T> {
     _modelDefinition: ModelDefinition;
 
     baseData: T;
 
+    @prop() _id: ObjectID;
+
     constructor(data?: T) {
         if (data) {
             this.wrap(data);
         }
+    }
+
+    reset() {
+        this.wrap(this.baseData);
+    }
+
+    update() {
+        this.baseData = this.unwrap();
+    }
+
+    diff() {
+        let keys = this.getKeys();
+        let diff = {};
+        if (this.baseData) {
+            let differentKeys = keys.forEach(key => {
+                if (this[key] !== this.baseData[key]) {
+                    diff[key] = this[key];
+                }
+            });
+        }
+        return diff;
     }
 
     getKeys() {
@@ -46,48 +78,4 @@ export default class Model<T> {
         this.getKeys().forEach(key => output[key] = this[key]);
         return output;
     }
-}
-
-export class ModelDefinition {
-    parent: ModelDefinition;
-    propertyConfigs: {
-        [index: string]: IPropertyConfig;
-    } = {};
-    constructor(parent?: ModelDefinition) {
-        this.parent = parent;
-    }
-    getKeys() {
-        if (this.parent) {
-            return this.parent.getKeys().concat(Object.keys(this.propertyConfigs));
-        } else {
-            return Object.keys(this.propertyConfigs) || [];
-        }
-    }
-    getConfig(key: string) {
-        return this.propertyConfigs[key];
-    }
-    addConfig(key: string, config: IPropertyConfig) {
-        this.propertyConfigs[key] = config;
-    }
-    static getModelDefinition(target: Model<any>) {
-        if (target._modelDefinition) {
-            if (!target.hasOwnProperty('_modelDefinition')) {
-                target._modelDefinition = new ModelDefinition(target._modelDefinition);
-            }
-        } else {
-            target._modelDefinition = new ModelDefinition();
-        }
-        return target._modelDefinition;
-    }
-}
-
-export interface IPropertyConfig {
-    required?: boolean;
-}
-
-export function prop<T extends Model<any>>(config?: IPropertyConfig) {
-    return function (target: T, propertyKey: string): void {
-        let modelDefinition = ModelDefinition.getModelDefinition(target);
-        modelDefinition.addConfig(propertyKey, config || {});
-    };
 }

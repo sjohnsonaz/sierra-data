@@ -1,9 +1,11 @@
 import { expect } from 'chai';
 
-import Model, { prop } from '../scripts/implementations/Model';
+import Model from '../scripts/implementations/Model';
+import Collection from '../scripts/implementations/Collection';
+import { prop } from '../scripts/implementations/Decorators';
 
 describe('Model.unwrap', () => {
-    it('should create an object with all valid properties', () => {
+    it('should create an object with all valid properties', async () => {
         interface IParent {
             parentValue: string;
         }
@@ -32,5 +34,12 @@ describe('Model.unwrap', () => {
         console.log('valid:', testModel.validate());
         console.log('value:', testModel.unwrap());
         expect(true).to.equal(true);
+
+        let collection = new Collection();
+        await collection.connect('mongodb://localhost:27017', 'sierra-data');
+        collection.create(testModel);
+
+        testModel.stringValue = 'efgh';
+        collection.update(testModel);
     });
 });
