@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 
 import Model from '../scripts/implementations/Model';
-import Collection from '../scripts/implementations/Collection';
+import CollectionFactory from '../scripts/implementations/CollectionFactory';
 import { prop } from '../scripts/implementations/Decorators';
 
 describe('Model.unwrap', () => {
@@ -31,15 +31,16 @@ describe('Model.unwrap', () => {
         }
 
         let testModel = new TestModel();
-        console.log('valid:', testModel.validate());
-        console.log('value:', testModel.unwrap());
-        expect(true).to.equal(true);
 
-        let collection = new Collection();
-        await collection.connect('mongodb://localhost:27017', 'sierra-data');
-        collection.create(testModel);
+        let collectionFactory = new CollectionFactory();
+        await collectionFactory.connect('mongodb://localhost:27017', 'sierra-data');
+        let collection = collectionFactory.createCollection('testcollection');
+        await collection.create(testModel);
 
         testModel.stringValue = 'efgh';
-        collection.update(testModel);
+        await collection.update(testModel);
+
+        let result = await collection.findOne({ _id: testModel._id }, TestModel);
+        expect(true).to.equal(true);
     });
 });
