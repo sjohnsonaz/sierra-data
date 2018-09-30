@@ -42,5 +42,6 @@ describe('Model.unwrap', () => {
 
         let result = await collection.findOne({ _id: testModel._id }, TestModel);
         expect(true).to.equal(true);
+        collectionFactory.close();
     });
 });

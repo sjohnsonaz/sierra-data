@@ -11,6 +11,10 @@ export default class CollectionFactory {
         this.db = this.client.db(dbName);
     }
 
+    close() {
+        return this.client.close();
+    }
+
     createCollection<T>(collectionName: string) {
         return new Collection<T>(this.db.collection(collectionName));
     }
