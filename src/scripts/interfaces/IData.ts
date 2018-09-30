@@ -1,3 +1,5 @@
+import { ObjectId } from "bson";
+
 export interface IData {
-    _id: string;
+    _id: ObjectId;
 }

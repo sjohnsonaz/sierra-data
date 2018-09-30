@@ -1,7 +1,9 @@
 export { IData } from './interfaces/IData';
-export { IMethods } from './interfaces/IMethods';
 export { IQuery } from './interfaces/IQuery';
 export { IQueryResult } from './interfaces/IQueryResult';
-export { SchemaModel, Schema } from './implementations/SchemaModel';
-export { default as Gateway } from './implementations/Gateway';
+export { default as Collection } from './implementations/Collection';
+export { default as CollectionFactory } from './implementations/CollectionFactory';
+export { prop } from './implementations/Decorators';
+export { default as Model } from './implementations/Model';
+export { default as ModelDefinition, IAllPropertyConfig, INumberPropertyConfig, IPropertyConfig, IStringPropertyConfig } from './implementations/ModelDefinition';
 export { default as Service } from './implementations/Service';

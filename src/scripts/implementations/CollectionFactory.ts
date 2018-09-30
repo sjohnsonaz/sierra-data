@@ -1,6 +1,8 @@
 import * as MongoDB from 'mongodb';
 
 import Collection from './Collection';
+import { IData } from '../interfaces/IData';
+import Model from './Model';
 
 export default class CollectionFactory {
     client: MongoDB.MongoClient;
@@ -15,7 +17,7 @@ export default class CollectionFactory {
         return this.client.close();
     }
 
-    createCollection<T>(collectionName: string) {
-        return new Collection<T>(this.db.collection(collectionName));
+    createCollection<T extends IData>(collectionName: string, modelConstructor: new (data: T) => Model<T>) {
+        return new Collection<T>(this.db.collection(collectionName), modelConstructor);
     }
 }

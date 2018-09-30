@@ -1,18 +1,17 @@
 import * as mongoose from 'mongoose';
 
 import { method, IMiddleware, Controller } from 'sierra';
-import Gateway from './Gateway';
+import Collection from './Collection';
 
 import { IData } from '../interfaces/IData';
-import { IQuery } from '../interfaces/IQuery';
-import { IQueryResult } from '../interfaces/IQueryResult';
+import { ObjectId } from 'bson';
 
-export default class Service<T extends IData, U extends Gateway<T, any, any>> extends Controller {
-    gateway: U;
+export default class Service<T extends IData, U extends Collection<T>> extends Controller {
+    collection: U;
 
-    constructor(base: string, gateway: U) {
+    constructor(base: string, collection: U) {
         super(base);
-        this.gateway = gateway;
+        this.collection = collection;
     }
 
     @method('get')
@@ -23,9 +22,8 @@ export default class Service<T extends IData, U extends Gateway<T, any, any>> ex
         if (!_limit || isNaN(_limit) || !isFinite(_limit)) {
             _limit = 20;
         }
-        return this.gateway.list({
+        return this.collection.list({
             find: {} as any,
-            select: undefined,
             offset: _offset,
             limit: _limit,
             sort: (function () {
@@ -40,24 +38,27 @@ export default class Service<T extends IData, U extends Gateway<T, any, any>> ex
 
     @method('get', '/:id')
     async get(id: string) {
-        return this.gateway.get(id);
+        return this.collection.get(id);
     }
 
     @method('post')
     async post($body: T) {
-        let result = await this.gateway.create($body);
-        return result._id;
+        let model = this.collection.create($body);
+        await model.save();
+        return model._id;
     }
 
     @method('put', '/:id')
     async put(id: string, $body: T) {
-        let result = await this.gateway.update(id, $body);
+        let model = this.collection.create($body);
+        model._id = new ObjectId(id);
+        await model.save();
         return true;
     }
 
     @method('delete', '/:id')
     async delete(id: string) {
-        await this.gateway.delete(id);
+        await this.collection.delete(id);
         return true;
     }
 }

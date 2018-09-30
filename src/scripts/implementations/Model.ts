@@ -2,13 +2,12 @@ import { ObjectID } from "bson";
 
 import ModelDefinition from './ModelDefinition';
 import { prop } from './Decorators';
+import { IData } from "../interfaces/IData";
+import Collection from "./Collection";
 
-export interface IModel {
-    _id: ObjectID;
-}
-
-export default class Model<T> {
+export default class Model<T extends IData> {
     _modelDefinition: ModelDefinition;
+    collection: Collection<T>;
 
     baseData: T;
 
@@ -77,5 +76,23 @@ export default class Model<T> {
         let output: T = {} as any;
         this.getKeys().forEach(key => output[key] = this[key]);
         return output;
+    }
+
+    save() {
+        if (this.collection) {
+            if (this._id) {
+                this.collection.update(this);
+            } else {
+                this.collection.insert(this);
+            }
+        }
+    }
+
+    delete() {
+        if (this.collection) {
+            if (this._id) {
+                this.collection.delete(this._id);
+            }
+        }
     }
 }

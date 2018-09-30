@@ -1,8 +1,7 @@
-import * as mongoose from 'mongoose';
-
 import { IData } from './IData';
+import Model from '../implementations/Model';
 
 export interface IQueryResult<T extends IData> {
     count: number;
-    results: T[];
+    results: Model<T>[];
 }
