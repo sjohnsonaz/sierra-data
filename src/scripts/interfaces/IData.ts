@@ -1,5 +1,5 @@
-import { ObjectId } from "bson";
+import * as MongoDB from 'mongodb';
 
 export interface IData {
-    _id: ObjectId;
+    _id: MongoDB.ObjectId;
 }

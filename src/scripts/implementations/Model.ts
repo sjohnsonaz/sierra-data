@@ -1,4 +1,4 @@
-import { ObjectID } from "bson";
+import * as MongoDB from 'mongodb';
 
 import ModelDefinition from './ModelDefinition';
 import { prop } from './Decorators';
@@ -7,32 +7,34 @@ import Collection from "./Collection";
 
 export default class Model<T extends IData> {
     _modelDefinition: ModelDefinition;
-    collection: Collection<T>;
+    _collection: Collection<Model<T>, T>;
 
-    baseData: T;
+    _baseData: T;
 
-    @prop() _id: ObjectID;
+    @prop() _id: MongoDB.ObjectId;
 
     constructor(data?: T) {
+        Object.defineProperties(this, propertyDefinitions);
+
         if (data) {
             this.wrap(data);
         }
     }
 
     reset() {
-        this.wrap(this.baseData);
+        this.wrap(this._baseData);
     }
 
     update() {
-        this.baseData = this.unwrap();
+        this._baseData = this.unwrap();
     }
 
     diff() {
         let keys = this.getKeys();
         let diff = {};
-        if (this.baseData) {
+        if (this._baseData) {
             let differentKeys = keys.forEach(key => {
-                if (this[key] !== this.baseData[key]) {
+                if (this[key] !== this._baseData[key]) {
                     diff[key] = this[key];
                 }
             });
@@ -54,10 +56,19 @@ export default class Model<T extends IData> {
         }
     }
 
+    getConfigs() {
+        if (this._modelDefinition) {
+            return this._modelDefinition.getConfigs();
+        } else {
+            return {};
+        }
+    }
+
     validate() {
         let output = [];
-        this.getKeys().forEach(key => {
-            let config = this.getConfig(key);
+        let configs = this.getConfigs();
+        Object.keys(configs).forEach(key => {
+            let config = configs[key];
             if (config && config.required) {
                 if (!this[key]) {
                     output.push(key);
@@ -68,31 +79,54 @@ export default class Model<T extends IData> {
     }
 
     wrap(data: T) {
-        this.baseData = data;
+        this._baseData = data;
         this.getKeys().forEach(key => this[key] = data[key]);
     }
 
-    unwrap(): T {
+    unwrap(hide?: boolean): T {
         let output: T = {} as any;
-        this.getKeys().forEach(key => output[key] = this[key]);
+        let configs = this.getConfigs();
+        Object.keys(configs).forEach(key => {
+            let config = configs[key];
+            if (!hide || !config.hide) {
+                output[key] = this[key];
+            }
+        });
         return output;
     }
 
+    toJSON() {
+        return this.unwrap(true);
+    }
+
     save() {
-        if (this.collection) {
+        if (this._collection) {
             if (this._id) {
-                this.collection.update(this);
+                this._collection.update(this._id, this);
             } else {
-                this.collection.insert(this);
+                this._collection.insert(this);
             }
         }
     }
 
     delete() {
-        if (this.collection) {
+        if (this._collection) {
             if (this._id) {
-                this.collection.delete(this._id);
+                this._collection.delete(this._id);
             }
         }
     }
 }
+
+let propertyDefinitions = {
+    _baseData: {
+        enumerable: false,
+        writable: true,
+        configurable: true
+    },
+    _collection: {
+        enumerable: false,
+        writable: true,
+        configurable: true
+    }
+};

@@ -1,14 +1,15 @@
 import { expect } from 'chai';
+import * as MongoDB from 'mongodb';
 
 import Model from '../scripts/implementations/Model';
 import CollectionFactory from '../scripts/implementations/CollectionFactory';
 import { prop } from '../scripts/implementations/Decorators';
-import { ObjectId } from 'bson';
+import { Collection } from '../scripts/SierraData';
 
 describe('Model.unwrap', () => {
     it('should create an object with all valid properties', async () => {
         interface IParent {
-            _id: ObjectId;
+            _id: MongoDB.ObjectId;
             parentValue: string;
         }
 
@@ -32,16 +33,17 @@ describe('Model.unwrap', () => {
             numberValue: number;
         }
 
-        let testModel = new TestModel();
-
         let collectionFactory = new CollectionFactory();
         try {
             await collectionFactory.connect('mongodb://localhost:27017', 'sierra-data');
-            let collection = collectionFactory.createCollection<ITest>('testcollection', TestModel);
+            let testCollection = collectionFactory.getCollection('testcollection');
+            let collection = new Collection(testCollection, TestModel);
+
+            let testModel = collection.create();
             await collection.insert(testModel);
 
             testModel.stringValue = 'efgh';
-            await collection.update(testModel);
+            await collection.update(testModel._id, testModel);
 
             let result = await collection.findOne({ _id: testModel._id });
             expect(true).to.equal(true);

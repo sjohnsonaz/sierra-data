@@ -6,47 +6,48 @@ import { IQueryResult } from '../interfaces/IQueryResult';
 
 import Model from './Model';
 
-export default class Collection<T extends IData> {
+export default class Collection<T extends Model<U>, U extends IData = ReturnType<T['unwrap']>> {
     collection: MongoDB.Collection;
-    modelConstructor: new (data: T) => Model<T>;
+    modelConstructor: new (data: U) => T;
 
-    constructor(collection: MongoDB.Collection, modelConstructor: new (data: T) => Model<T>) {
+    constructor(collection: MongoDB.Collection, modelConstructor: new (data: U) => T) {
         this.collection = collection;
         this.modelConstructor = modelConstructor;
     }
 
-    create(data: T) {
+    create(data?: U) {
         let model = new this.modelConstructor(data);
-        model.collection = this;
+        model._collection = this;
         return model;
     }
 
-    async insert(model: Model<T>) {
-        let result = await this.collection.insertOne(model.unwrap());
+    async insert(model: T) {
+        let result = await this.collection.insertOne(model.unwrap(true));
         model._id = result.insertedId;
         model.update();
         return result;
     }
 
-    async update(model: Model<T>) {
-        let result = this.collection.updateOne({ _id: model._id }, { $set: model.diff() });
+    async update(id: string | MongoDB.ObjectId, model: T) {
+        let result = this.collection.updateOne({ _id: id }, { $set: model.diff() });
         model.update();
         return result;
     }
 
-    async findOne(query: Partial<T>) {
-        let result = await this.collection.findOne<T>(query);
-        return new this.modelConstructor(result);
+    async findOne(query: Partial<U>) {
+        let result = await this.collection.findOne<U>(query);
+        return this.create(result);
     }
 
-    get(id: string | MongoDB.ObjectId) {
-        return this.collection.findOne<Model<T>>({
+    async get(id: string | MongoDB.ObjectId) {
+        let result = await this.collection.findOne<U>({
             _id: id
         });
+        return this.create(result);
     }
 
     async list(params: {
-        find: IQuery<T>;
+        find: IQuery<U>;
         offset: number;
         limit: number;
         sort: any;
@@ -57,7 +58,7 @@ export default class Collection<T extends IData> {
         var limit = params.limit;
         var sort = params.sort;
 
-        let query = this.collection.find<T>(find);
+        let query = this.collection.find<U>(find);
         let count = await query.count();
 
         if (limit !== 0) {
@@ -68,7 +69,12 @@ export default class Collection<T extends IData> {
             query = query.sort(sort);
         }
 
-        let data = (await query.toArray()).map(item => new this.modelConstructor(item));
+        let array = await query.toArray();
+        let data = array.map((item) => {
+            let model = new this.modelConstructor(item);
+            model._collection = this;
+            return model;
+        });
 
         return {
             count: count,

@@ -1,3 +1,7 @@
+import * as MongoDB from 'mongodb';
+
+type ObjectId = MongoDB.ObjectId;
+export { ObjectId }
 export { IData } from './interfaces/IData';
 export { IQuery } from './interfaces/IQuery';
 export { IQueryResult } from './interfaces/IQueryResult';

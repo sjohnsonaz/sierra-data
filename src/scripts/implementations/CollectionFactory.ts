@@ -7,6 +7,9 @@ import Model from './Model';
 export default class CollectionFactory {
     client: MongoDB.MongoClient;
     db: MongoDB.Db;
+    collections: {
+        [index:string]: MongoDB.Collection;
+    } = {};
 
     async connect(uri: string, dbName: string) {
         this.client = await MongoDB.MongoClient.connect(uri, { useNewUrlParser: true });
@@ -14,10 +17,14 @@ export default class CollectionFactory {
     }
 
     close() {
+        this.collections = {};
         return this.client.close();
     }
 
-    createCollection<T extends IData>(collectionName: string, modelConstructor: new (data: T) => Model<T>) {
-        return new Collection<T>(this.db.collection(collectionName), modelConstructor);
+    getCollection(collectionName: string) {
+        if (!this.collections[collectionName]) {
+            this.collections[collectionName] = this.db.collection(collectionName);
+        }
+        return this.collections[collectionName];
     }
 }

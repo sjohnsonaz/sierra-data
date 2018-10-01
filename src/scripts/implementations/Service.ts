@@ -1,15 +1,14 @@
-import * as mongoose from 'mongoose';
-
 import { method, IMiddleware, Controller } from 'sierra';
-import Collection from './Collection';
+import * as MongoDB from 'mongodb';
 
 import { IData } from '../interfaces/IData';
-import { ObjectId } from 'bson';
+import Collection from './Collection';
+import Model from './Model';
 
-export default class Service<T extends IData, U extends Collection<T>> extends Controller {
-    collection: U;
+export default class Service<T extends Model<U>, U extends IData, V extends Collection<T, U>> extends Controller {
+    collection: V;
 
-    constructor(base: string, collection: U) {
+    constructor(base: string, collection: V) {
         super(base);
         this.collection = collection;
     }
@@ -38,20 +37,20 @@ export default class Service<T extends IData, U extends Collection<T>> extends C
 
     @method('get', '/:id')
     async get(id: string) {
-        return this.collection.get(id);
+        return await this.collection.get(id);
     }
 
     @method('post')
-    async post($body: T) {
+    async post($body: U) {
         let model = this.collection.create($body);
         await model.save();
         return model._id;
     }
 
     @method('put', '/:id')
-    async put(id: string, $body: T) {
+    async put(id: string, $body: U) {
         let model = this.collection.create($body);
-        model._id = new ObjectId(id);
+        model._id = new MongoDB.ObjectId(id);
         await model.save();
         return true;
     }

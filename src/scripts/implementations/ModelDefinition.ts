@@ -3,6 +3,8 @@ import Model from './Model';
 export interface IPropertyConfig<T = any> {
     type?: any;
     required?: boolean;
+    default?: T;
+    hide?: boolean;
     wrap?: (value: T) => T;
     unwrap?: (value: T) => T;
     validation?: (value: T) => boolean;
@@ -11,6 +13,7 @@ export interface IPropertyConfig<T = any> {
 export interface IStringPropertyConfig extends IPropertyConfig<string> {
     minLength?: number;
     maxLength?: number;
+    trim?: boolean;
 }
 
 export interface INumberPropertyConfig extends IPropertyConfig<number> {
@@ -36,6 +39,19 @@ export default class ModelDefinition {
         } else {
             return Object.keys(this.propertyConfigs) || [];
         }
+    }
+
+    getConfigs() {
+        let configHash: {
+            [index: string]: IAllPropertyConfig;
+        };
+        if (this.parent) {
+            configHash = this.parent.getConfigs();
+        } else {
+            configHash = {};
+        }
+        Object.assign(configHash, this.propertyConfigs);
+        return configHash;
     }
 
     getConfig(key: string) {
