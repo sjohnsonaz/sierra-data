@@ -36,7 +36,9 @@ export default class Collection<T extends Model<U>, U extends IData = ReturnType
 
     async findOne(query: Partial<U>) {
         let result = await this.collection.findOne<U>(query);
-        return this.create(result);
+        if (result) {
+            return this.create(result);
+        }
     }
 
     async get(id: string | MongoDB.ObjectId) {
