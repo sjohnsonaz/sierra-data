@@ -27,7 +27,7 @@
   },
   "peerDependencies": {
     "mongodb": "3.1.6",
-    "sierra": "^0.3.12"
+    "sierra": "^0.3.13"
   },
   "devDependencies": {
     "@types/chai": "4.1.6",
@@ -38,7 +38,7 @@
     "mongodb": "3.1.6",
     "nodemon": "1.18.4",
     "rimraf": "2.6.2",
-    "sierra": "^0.3.12",
+    "sierra": "^0.3.13",
     "typescript": "3.1.1"
   }
 }
