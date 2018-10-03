@@ -25,16 +25,20 @@ export default class Collection<T extends Model<U>, U extends IData = ReturnType
         let result = await this.collection.insertOne(model.unwrap());
         model._id = result.insertedId;
         model.update();
-        return result;
+        return model;
     }
 
-    async update(id: string | MongoDB.ObjectId, model: T) {
+    async update(id: string | MongoDB.ObjectId, model: T, overwrite?: boolean) {
         if (typeof id === 'string') {
             id = new MongoDB.ObjectId(id);
         }
-        let result = this.collection.updateOne({ _id: id }, { $set: model.diff() });
+        let result = await this.collection.updateOne({ _id: id }, {
+            $set: overwrite ?
+                model.unwrap() :
+                model.diff()
+        });
         model.update();
-        return result;
+        return model;
     }
 
     async findOne(query: Partial<U>) {

@@ -102,15 +102,15 @@ export default class Model<T extends IData> {
         return this.unwrap(true);
     }
 
-    save() {
+    async save(overwrite?: boolean;) {
         if (this._collection) {
             this.beforeSave();
             if (this._id) {
-                this.beforeUpdate();
-                this._collection.update(this._id, this);
+                this.beforeUpdate(overwrite);
+                await this._collection.update(this._id, this, overwrite);
             } else {
                 this.beforeInsert();
-                this._collection.insert(this);
+                await this._collection.insert(this);
             }
         }
     }
@@ -132,7 +132,7 @@ export default class Model<T extends IData> {
 
     }
 
-    beforeUpdate() {
+    beforeUpdate(overwrite?: boolean) {
 
     }
 
