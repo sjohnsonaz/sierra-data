@@ -11,7 +11,18 @@ export default class Model<T extends IData> {
 
     _baseData: Partial<T>;
 
-    @prop() _id: MongoDB.ObjectId;
+    @prop<Model<T>, T, '_id'>({
+        wrap: (value: string | MongoDB.ObjectId) => {
+            if (typeof value === 'string') {
+                return new MongoDB.ObjectId(value);
+            } else {
+                return value;
+            }
+        },
+        unwrap: (value) => {
+            return value.toHexString();
+        }
+    }) _id: MongoDB.ObjectId;
 
     constructor(data?: Partial<T>) {
         Object.defineProperties(this, propertyDefinitions);
@@ -50,7 +61,7 @@ export default class Model<T extends IData> {
         }
     }
 
-    getConfig(key: string) {
+    getConfig(key: keyof ThisType<T>) {
         if (this._modelDefinition) {
             return this._modelDefinition.getConfig(key);
         }

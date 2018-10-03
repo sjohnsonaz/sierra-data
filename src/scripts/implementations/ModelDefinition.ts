@@ -1,32 +1,29 @@
 import Model from './Model';
+import { IData } from '../interfaces/IData';
 
-export interface IPropertyConfig<T = any> {
+export interface IPropertyConfig<T = any, U = T> {
     type?: any;
     required?: boolean;
     default?: T;
     hide?: boolean;
-    wrap?: (value: T) => T;
-    unwrap?: (value: T) => T;
+    wrap?: (value: U) => T;
+    unwrap?: (value: T) => U;
     validation?: (value: T) => boolean;
-}
 
-export interface IStringPropertyConfig extends IPropertyConfig<string> {
+    // String
     minLength?: number;
     maxLength?: number;
     trim?: boolean;
-}
 
-export interface INumberPropertyConfig extends IPropertyConfig<number> {
+    // Number
     minimum?: number;
     maximum?: number;
 }
 
-export type IAllPropertyConfig = IPropertyConfig | IStringPropertyConfig | INumberPropertyConfig;
-
 export default class ModelDefinition {
     parent: ModelDefinition;
     propertyConfigs: {
-        [index: string]: IAllPropertyConfig;
+        [index: string]: IPropertyConfig;
     } = {};
 
     constructor(parent?: ModelDefinition) {
@@ -43,7 +40,7 @@ export default class ModelDefinition {
 
     getConfigs() {
         let configHash: {
-            [index: string]: IAllPropertyConfig;
+            [index: string]: IPropertyConfig;
         };
         if (this.parent) {
             configHash = this.parent.getConfigs();
@@ -54,15 +51,15 @@ export default class ModelDefinition {
         return configHash;
     }
 
-    getConfig(key: string) {
-        return this.propertyConfigs[key];
+    getConfig<T extends Model<U>, U extends IData>(key: keyof T) {
+        return this.propertyConfigs[key as any];
     }
 
-    addConfig(key: string, config: IPropertyConfig) {
-        this.propertyConfigs[key] = config;
+    addConfig<T extends Model<U>, U extends IData>(key: keyof T, config: IPropertyConfig<T[keyof T], U[keyof U]>) {
+        this.propertyConfigs[key as any] = config;
     }
 
-    static getModelDefinition(target: Model<any>) {
+    static getModelDefinition<T extends IData = any>(target: Model<T>) {
         if (target._modelDefinition) {
             if (!target.hasOwnProperty('_modelDefinition')) {
                 target._modelDefinition = new ModelDefinition(target._modelDefinition);
