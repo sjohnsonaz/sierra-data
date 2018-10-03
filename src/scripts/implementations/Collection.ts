@@ -29,6 +29,9 @@ export default class Collection<T extends Model<U>, U extends IData = ReturnType
     }
 
     async update(id: string | MongoDB.ObjectId, model: T) {
+        if (typeof id === 'string') {
+            id = new MongoDB.ObjectId(id);
+        }
         let result = this.collection.updateOne({ _id: id }, { $set: model.diff() });
         model.update();
         return result;
@@ -42,10 +45,15 @@ export default class Collection<T extends Model<U>, U extends IData = ReturnType
     }
 
     async get(id: string | MongoDB.ObjectId) {
+        if (typeof id === 'string') {
+            id = new MongoDB.ObjectId(id);
+        }
         let result = await this.collection.findOne<U>({
             _id: id
         });
-        return this.create(result);
+        if (result) {
+            return this.create(result);
+        }
     }
 
     async list(params: {
@@ -85,6 +93,9 @@ export default class Collection<T extends Model<U>, U extends IData = ReturnType
     }
 
     delete(id: string | MongoDB.ObjectId) {
+        if (typeof id === 'string') {
+            id = new MongoDB.ObjectId(id);
+        }
         return this.collection.remove({
             _id: id
         });
