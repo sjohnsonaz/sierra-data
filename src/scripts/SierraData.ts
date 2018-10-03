@@ -1,7 +1,6 @@
-import * as MongoDB from 'mongodb';
+/// <reference types="bson" />
+export { Binary, DBRef, Decimal128, Double, Long, MaxKey, MinKey, ObjectID, ObjectId, Timestamp } from 'bson';
 
-type ObjectId = MongoDB.ObjectId;
-export { ObjectId }
 export { IData } from './interfaces/IData';
 export { IQuery } from './interfaces/IQuery';
 export { IQueryResult } from './interfaces/IQueryResult';

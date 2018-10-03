@@ -8,21 +8,21 @@ import Model from './Model';
 
 export default class Collection<T extends Model<U>, U extends IData = ReturnType<T['unwrap']>> {
     collection: MongoDB.Collection;
-    modelConstructor: new (data: U) => T;
+    modelConstructor: new (data: Partial<U>) => T;
 
-    constructor(collection: MongoDB.Collection, modelConstructor: new (data: U) => T) {
+    constructor(collection: MongoDB.Collection, modelConstructor: new (data: Partial<U>) => T) {
         this.collection = collection;
         this.modelConstructor = modelConstructor;
     }
 
-    create(data?: U) {
+    create(data?: Partial<U>) {
         let model = new this.modelConstructor(data);
         model._collection = this;
         return model;
     }
 
     async insert(model: T) {
-        let result = await this.collection.insertOne(model.unwrap(true));
+        let result = await this.collection.insertOne(model.unwrap());
         model._id = result.insertedId;
         model.update();
         return result;

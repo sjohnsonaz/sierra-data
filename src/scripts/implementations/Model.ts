@@ -9,11 +9,11 @@ export default class Model<T extends IData> {
     _modelDefinition: ModelDefinition;
     _collection: Collection<Model<T>, T>;
 
-    _baseData: T;
+    _baseData: Partial<T>;
 
     @prop() _id: MongoDB.ObjectId;
 
-    constructor(data?: T) {
+    constructor(data?: Partial<T>) {
         Object.defineProperties(this, propertyDefinitions);
 
         if (data) {
@@ -31,7 +31,7 @@ export default class Model<T extends IData> {
 
     diff() {
         let keys = this.getKeys();
-        let diff = {};
+        let diff: Partial<T> = {};
         if (this._baseData) {
             let differentKeys = keys.forEach(key => {
                 if (this[key] !== this._baseData[key]) {
@@ -78,7 +78,7 @@ export default class Model<T extends IData> {
         return output;
     }
 
-    wrap(data: T) {
+    wrap(data: Partial<T>) {
         this._baseData = data;
         this.getKeys().forEach(key => this[key] = data[key]);
     }
@@ -91,6 +91,9 @@ export default class Model<T extends IData> {
             if (!hide || !config.hide) {
                 output[key] = this[key];
             }
+            if ((typeof config.default !== 'undefined') && (typeof this[key] === 'undefined')) {
+                output[key] = config.default;
+            }
         });
         return output;
     }
@@ -101,9 +104,12 @@ export default class Model<T extends IData> {
 
     save() {
         if (this._collection) {
+            this.beforeSave();
             if (this._id) {
+                this.beforeUpdate();
                 this._collection.update(this._id, this);
             } else {
+                this.beforeInsert();
                 this._collection.insert(this);
             }
         }
@@ -112,9 +118,26 @@ export default class Model<T extends IData> {
     delete() {
         if (this._collection) {
             if (this._id) {
+                this.beforeDelete();
                 this._collection.delete(this._id);
             }
         }
+    }
+
+    beforeSave() {
+
+    }
+
+    beforeInsert() {
+
+    }
+
+    beforeUpdate() {
+
+    }
+
+    beforeDelete() {
+
     }
 }
 
