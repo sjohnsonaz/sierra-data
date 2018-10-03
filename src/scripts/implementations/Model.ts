@@ -102,7 +102,7 @@ export default class Model<T extends IData> {
         return this.unwrap(true);
     }
 
-    async save(overwrite?: boolean;) {
+    async save(overwrite?: boolean) {
         if (this._collection) {
             this.beforeSave();
             if (this._id) {
