@@ -49,8 +49,8 @@ export default class Service<T extends Model<U>, U extends IData, V extends Coll
 
     @method('put', '/:id')
     async put(id: string, $body: U) {
-        $body._id = new MongoDB.ObjectId(id);
         let model = this.collection.create($body);
+        model._id = new MongoDB.ObjectId(id);
         await model.save(true);
         return true;
     }

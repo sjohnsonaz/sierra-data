@@ -4,12 +4,11 @@ import * as MongoDB from 'mongodb';
 import Model from '../scripts/implementations/Model';
 import CollectionFactory from '../scripts/implementations/CollectionFactory';
 import { prop } from '../scripts/implementations/Decorators';
-import { Collection } from '../scripts/SierraData';
+import { Collection, IData } from '../scripts/SierraData';
 
 describe('Model.unwrap', () => {
     it('should create an object with all valid properties', async () => {
-        interface IParent {
-            _id: MongoDB.ObjectId;
+        interface IParent extends IData {
             parentValue: string;
         }
 
@@ -45,7 +44,7 @@ describe('Model.unwrap', () => {
             testModel.stringValue = 'efgh';
             await collection.update(testModel._id, testModel);
 
-            let result = await collection.findOne({ _id: testModel._id });
+            let result = await collection.get(testModel._id);
             expect(true).to.equal(true);
         }
         finally {
