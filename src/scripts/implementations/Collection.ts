@@ -8,15 +8,15 @@ import Model from './Model';
 
 export default class Collection<T extends Model<U>, U extends IData = ReturnType<T['unwrap']>> {
     collection: MongoDB.Collection;
-    modelConstructor: new (data: Partial<U>) => T;
+    modelConstructor: new (data: Partial<U>, collection?: Collection<T, U>) => T;
 
-    constructor(collection: MongoDB.Collection, modelConstructor: new (data: Partial<U>) => T) {
+    constructor(collection: MongoDB.Collection, modelConstructor: new (data: Partial<U>, collection?: Collection<T, U>) => T) {
         this.collection = collection;
         this.modelConstructor = modelConstructor;
     }
 
     create(data?: Partial<U>) {
-        let model = new this.modelConstructor(data);
+        let model = new this.modelConstructor(data, this);
         model._collection = this;
         return model;
     }

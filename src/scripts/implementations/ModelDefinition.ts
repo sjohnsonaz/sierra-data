@@ -6,6 +6,10 @@ export interface IPropertyConfig<T = any, U = T> {
     required?: boolean;
     default?: T;
     hide?: boolean;
+    reference?: {
+        collection: string;
+        id: string;
+    }
     wrap?: (value: U) => T;
     unwrap?: (value: T) => U;
     validation?: (value: T) => boolean;

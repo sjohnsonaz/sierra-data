@@ -4,10 +4,11 @@ import ModelDefinition from './ModelDefinition';
 import { prop } from './Decorators';
 import { IData } from "../interfaces/IData";
 import Collection from "./Collection";
+import CollectionFactory from './CollectionFactory';
 
-export default class Model<T extends IData> {
+export default class Model<T extends IData, U extends Collection<Model<T, any>, T> = any> {
     _modelDefinition: ModelDefinition;
-    _collection: Collection<Model<T>, T>;
+    _collection: U;
 
     _baseData: Partial<T>;
 
@@ -24,9 +25,10 @@ export default class Model<T extends IData> {
         }
     }) _id: MongoDB.ObjectId;
 
-    constructor(data?: Partial<T>) {
+    constructor(data?: Partial<T>, collection?: U) {
         Object.defineProperties(this, propertyDefinitions);
 
+        this._collection = collection;
         if (data) {
             this.wrap(data);
         }
@@ -94,16 +96,68 @@ export default class Model<T extends IData> {
         this.getKeys().forEach(key => this[key] = data[key]);
     }
 
-    unwrap(hide?: boolean): T {
-        let output: T = {} as any;
+    build(collectionFactory: CollectionFactory, references: string | string[]) {
+        let referenceHash = {};
+        switch (typeof references) {
+            case 'string':
+                referenceHash[references as string] = true;
+                break;
+            case 'object':
+                if (references instanceof Array) {
+                    references.forEach(reference => {
+                        referenceHash[reference] = true;
+                    });
+                }
+                break;
+        }
+
         let configs = this.getConfigs();
         Object.keys(configs).forEach(key => {
             let config = configs[key];
-            if (!hide || !config.hide) {
-                output[key] = this[key];
+            if (config.reference && referenceHash[key]) {
+                if (config.reference.collection && config.reference.id) {
+                    let collection = collectionFactory.getCollection(config.reference.collection);
+                    if (collection) {
+                    }
+                }
             }
-            if ((typeof config.default !== 'undefined') && (typeof this[key] === 'undefined')) {
-                output[key] = config.default;
+        });
+    }
+
+    unwrap(hide?: boolean, references?: boolean | string | string[]): T {
+        let output: T = {} as any;
+        let configs = this.getConfigs();
+        let useReferences: boolean;
+        let referenceHash = {};
+        switch (typeof references) {
+            case 'boolean':
+                useReferences = references as boolean;
+                break;
+            case 'string':
+                useReferences = true;
+                referenceHash[references as string] = true;
+                break;
+            case 'object':
+                if (references instanceof Array) {
+                    useReferences = true;
+                    references.forEach(reference => {
+                        referenceHash[reference] = true;
+                    });
+                }
+                break;
+        }
+
+        Object.keys(configs).forEach(key => {
+            let config = configs[key];
+            if (!hide || !config.hide) {
+                if (config.reference) {
+
+                }
+                if ((typeof config.default !== 'undefined') && (typeof this[key] === 'undefined')) {
+                    output[key] = config.default;
+                } else {
+                    output[key] = this[key];
+                }
             }
         });
         return output;
