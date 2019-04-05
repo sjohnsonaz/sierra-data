@@ -21,7 +21,11 @@ export default class Model<T extends IData, U extends Collection<Model<T, any>, 
             }
         },
         unwrap: (value) => {
-            return value.toHexString();
+            if (value && value.toHexString) {
+                return value.toHexString();
+            } else {
+                return value as any;
+            }
         }
     }) _id: MongoDB.ObjectId;
 
@@ -153,11 +157,16 @@ export default class Model<T extends IData, U extends Collection<Model<T, any>, 
                 if (config.reference) {
 
                 }
+                let value;
                 if ((typeof config.default !== 'undefined') && (typeof this[key] === 'undefined')) {
-                    output[key] = config.default;
+                    value = config.default;
                 } else {
-                    output[key] = this[key];
+                    value = this[key];
                 }
+                if (config.unwrap) {
+                    value = config.unwrap(value);
+                }
+                output[key] = value;
             }
         });
         return output;
