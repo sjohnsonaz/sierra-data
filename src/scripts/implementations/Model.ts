@@ -184,8 +184,10 @@ export default class Model<T extends IData, U extends Collection<Model<T, any>, 
                 await this._collection.update(this._id, this, overwrite);
             } else {
                 this.beforeInsert();
-                await this._collection.insert(this);
+                let result = await this._collection.insert(this);
+                this._id = result.insertedId;
             }
+            return this._id;
         }
     }
 
