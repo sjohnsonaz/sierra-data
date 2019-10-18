@@ -1,10 +1,10 @@
 import Model from './Model';
 import ModelDefinition, { IPropertyConfig } from './ModelDefinition';
-import { IData } from '../interfaces/IData';
+import { IClientData } from '../interfaces/IClientData';
 
 export function prop<
     T extends Model<U>,
-    U extends IData = any,
+    U extends IClientData = IClientData,
     V extends (keyof T & keyof U) = any
 >(
     config?: IPropertyConfig<T[V], U[V]>

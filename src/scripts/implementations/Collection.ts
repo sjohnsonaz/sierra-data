@@ -1,57 +1,74 @@
 import * as MongoDB from 'mongodb';
 
-import { IData } from '../interfaces/IData';
+import { IClientData } from '../interfaces/IClientData';
 import { IQuery } from '../interfaces/IQuery';
 import { IQueryResult } from '../interfaces/IQueryResult';
 
 import Model from './Model';
+import { IServerData } from '../interfaces/IServerData';
 
-export default class Collection<T extends Model<U>, U extends IData = ReturnType<T['unwrap']>> {
-    collection: MongoDB.Collection;
-    modelConstructor: new (collection?: Collection<T, U>) => T;
+export default class Collection<
+    T extends Model<U, V>,
+    U extends IClientData = ReturnType<T['toClient']>,
+    V extends IServerData = ReturnType<T['toServer']>
+> {
+    collection: MongoDB.Collection<V>;
+    modelConstructor: new (collection?: Collection<T, U, V>) => T;
 
-    constructor(collection: MongoDB.Collection, modelConstructor: new (collection?: Collection<T, U>) => T) {
+    constructor(collection: MongoDB.Collection<V>, modelConstructor: new (collection?: Collection<T, U, V>) => T) {
         this.collection = collection;
         this.modelConstructor = modelConstructor;
     }
 
-    create(data?: Partial<U>) {
+    create(): T {
         let model = new this.modelConstructor(this);
-        model.wrap(data);
         model._collection = this;
         return model;
     }
 
     async insert(model: T) {
-        return await this.collection.insertOne(model.unwrap());
+        return await this.collection.insertOne(model.toServer());
     }
 
-    async update(id: MongoDB.ObjectId, model: T, overwrite?: boolean) {
-        return await this.collection.updateOne({ _id: id }, {
+    async update(id: string | MongoDB.ObjectId, model: T, overwrite?: boolean) {
+        if (typeof id === 'string') {
+            id = new MongoDB.ObjectId(id);
+        }
+        // TODO: Fix typing
+        return await this.collection.updateOne({ _id: id } as any, {
             $set: overwrite ?
-                model.unwrap() :
+                model.toServer() :
                 model.diff()
-        });
+        } as any);
     }
 
-    async findOne(query: Partial<U>) {
-        let result = await this.collection.findOne<U>(query);
+    async findOne(query: Partial<V>) {
+        let result = await this.collection.findOne(query);
         if (result) {
-            return this.create(result);
+            let model = this.create();
+            model.fromServer(result);
+            return model;
         }
     }
 
-    async get(id: MongoDB.ObjectId) {
-        let result = await this.collection.findOne<U>({
+    async get(id: string | MongoDB.ObjectId) {
+        if (typeof id === 'string') {
+            id = new MongoDB.ObjectId(id);
+        }
+
+        // TODO: Fix typing
+        let result = await this.collection.findOne({
             _id: id
-        }, {});
+        } as any, {});
         if (result) {
-            return this.create(result);
+            let model = this.create();
+            model.fromServer(result);
+            return model;
         }
     }
 
     async list(params: {
-        find: IQuery<U>;
+        find: Partial<V>;
         offset: number;
         limit: number;
         sort: any;
@@ -62,7 +79,7 @@ export default class Collection<T extends Model<U>, U extends IData = ReturnType
         var limit = params.limit;
         var sort = params.sort;
 
-        let query = this.collection.find<U>(find);
+        let query = this.collection.find(find);
         let count = await query.count();
 
         if (limit !== 0) {
@@ -75,9 +92,8 @@ export default class Collection<T extends Model<U>, U extends IData = ReturnType
 
         let array = await query.toArray();
         let data = array.map((item) => {
-            let model = new this.modelConstructor();
-            model.wrap(item);
-            model._collection = this;
+            let model = this.create();
+            model.fromServer(item);
             return model;
         });
 
@@ -87,9 +103,14 @@ export default class Collection<T extends Model<U>, U extends IData = ReturnType
         };
     }
 
-    delete(id: MongoDB.ObjectId) {
-        return this.collection.remove({
+    delete(id: string | MongoDB.ObjectId) {
+        if (typeof id === 'string') {
+            id = new MongoDB.ObjectId(id);
+        }
+
+        // TODO: Fix typing
+        return this.collection.deleteOne({
             _id: id
-        });
+        } as any);
     }
 }

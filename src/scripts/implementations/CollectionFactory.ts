@@ -1,9 +1,5 @@
 import * as MongoDB from 'mongodb';
 
-import Collection from './Collection';
-import { IData } from '../interfaces/IData';
-import Model from './Model';
-
 export default class CollectionFactory {
     client: MongoDB.MongoClient;
     db: MongoDB.Db;

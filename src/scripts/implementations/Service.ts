@@ -1,14 +1,20 @@
 import { method, IMiddleware, Controller } from 'sierra';
 import * as MongoDB from 'mongodb';
 
-import { IData } from '../interfaces/IData';
+import { IClientData } from '../interfaces/IClientData';
 import Collection from './Collection';
 import Model from './Model';
+import { IServerData } from '../interfaces/IServerData';
 
-export default class Service<T extends Model<U>, U extends IData, V extends Collection<T, U>> extends Controller {
-    collection: V;
+export default class Service<
+    T extends Model<U, V>,
+    U extends IClientData = ReturnType<T['toClient']>,
+    V extends IServerData = ReturnType<T['toServer']>,
+    W extends Collection<T, U, V> = Collection<T, U, V>
+    > extends Controller {
+    collection: W;
 
-    constructor(base: string, collection: V) {
+    constructor(base: string, collection: W) {
         super(base);
         this.collection = collection;
     }
@@ -43,14 +49,16 @@ export default class Service<T extends Model<U>, U extends IData, V extends Coll
 
     @method('post')
     async post($body: U) {
-        let model = this.collection.create($body);
+        let model = this.collection.create();
+        model.fromClient($body);
         await model.save();
         return model._id;
     }
 
     @method('put', '/:id')
     async put(id: string, $body: U) {
-        let model = this.collection.create($body);
+        let model = this.collection.create();
+        model.fromClient($body);
         model._id = new MongoDB.ObjectId(id);
         await model.save(true);
         return true;

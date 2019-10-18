@@ -1,7 +1,9 @@
 import Model from './Model';
-import { IData } from '../interfaces/IData';
+import { IClientData } from '../interfaces/IClientData';
 
-export interface IPropertyConfig<T = any, U = T> {
+export interface IPropertyConfig<T = any, U = T, V = T> {
+    clientKey?: string;
+    serverKey?: string;
     type?: any;
     required?: boolean;
     default?: T;
@@ -10,8 +12,10 @@ export interface IPropertyConfig<T = any, U = T> {
         collection: string;
         id: string;
     }
-    wrap?: (value: U) => T;
-    unwrap?: (value: T) => U;
+    fromClient?: (value: U) => T;
+    toClient?: (value: T) => U;
+    fromServer?: (value: V) => T;
+    toServer?: (value: T) => V;
     validation?: (value: T) => boolean;
 
     // String
@@ -55,15 +59,15 @@ export default class ModelDefinition {
         return configHash;
     }
 
-    getConfig<T extends Model<U>, U extends IData>(key: keyof T) {
+    getConfig<T extends Model<U>, U extends IClientData>(key: keyof T) {
         return this.propertyConfigs[key as any];
     }
 
-    addConfig<T extends Model<U>, U extends IData>(key: keyof T, config: IPropertyConfig<T[keyof T], U[keyof U]>) {
+    addConfig<T extends Model<U>, U extends IClientData>(key: keyof T, config: IPropertyConfig<T[keyof T], U[keyof U]>) {
         this.propertyConfigs[key as any] = config;
     }
 
-    static getModelDefinition<T extends IData = any>(target: Model<T>) {
+    static getModelDefinition<T extends IClientData = any>(target: Model<T>) {
         if (target._modelDefinition) {
             if (!target.hasOwnProperty('_modelDefinition')) {
                 target._modelDefinition = new ModelDefinition(target._modelDefinition);

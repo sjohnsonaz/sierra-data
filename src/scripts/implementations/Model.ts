@@ -2,25 +2,30 @@ import * as MongoDB from 'mongodb';
 
 import ModelDefinition from './ModelDefinition';
 import { prop } from './Decorators';
-import { IData } from "../interfaces/IData";
+import { IClientData } from "../interfaces/IClientData";
+import { IServerData } from '../interfaces/IServerData';
 import Collection from "./Collection";
 import CollectionFactory from './CollectionFactory';
 
-export default class Model<T extends IData, U extends Collection<Model<T, any>, T> = any> {
+export default class Model<
+    T extends IClientData,
+    U extends IServerData = IServerData,
+    V extends Collection<Model<T, U, any>, T, U> = Collection<Model<T, U, any>, T, U>
+    > {
     _modelDefinition: ModelDefinition;
-    _collection: U;
+    _collection: V;
 
     _baseData: Partial<T>;
 
     @prop<Model<T>, T, '_id'>({
-        wrap: (value: string | MongoDB.ObjectId) => {
+        fromClient: (value: string | MongoDB.ObjectId) => {
             if (typeof value === 'string') {
                 return new MongoDB.ObjectId(value);
             } else {
                 return value;
             }
         },
-        unwrap: (value) => {
+        toClient: (value) => {
             if (value && value.toHexString) {
                 return value.toHexString();
             } else {
@@ -29,18 +34,18 @@ export default class Model<T extends IData, U extends Collection<Model<T, any>, 
         }
     }) _id: MongoDB.ObjectId;
 
-    constructor(collection?: U) {
+    constructor(collection?: V) {
         Object.defineProperties(this, propertyDefinitions);
 
         this._collection = collection;
     }
 
     reset() {
-        this.wrap(this._baseData);
+        // this.wrap(this._baseData);
     }
 
     update() {
-        this._baseData = this.unwrap();
+        // this._baseData = this.unwrap();
     }
 
     diff() {
@@ -91,21 +96,6 @@ export default class Model<T extends IData, U extends Collection<Model<T, any>, 
         return output;
     }
 
-    wrap(data: Partial<T>) {
-        data = data || {};
-        this._baseData = data;
-        let configs = this.getConfigs();
-        Object.keys(configs).forEach(key => {
-            let config = configs[key];
-
-            if ((typeof config.default !== 'undefined') && (typeof data[key] === 'undefined')) {
-                this[key] = config.default;
-            } else {
-                this[key] = config.wrap ? config.wrap(data[key]) : data[key];
-            }
-        });
-    }
-
     build(collectionFactory: CollectionFactory, references: string | string[]) {
         let referenceHash = {};
         switch (typeof references) {
@@ -134,7 +124,22 @@ export default class Model<T extends IData, U extends Collection<Model<T, any>, 
         });
     }
 
-    unwrap(hide?: boolean, references?: boolean | string | string[]): T {
+    fromClient(data: Partial<T>) {
+        data = data || {};
+        this._baseData = data;
+        let configs = this.getConfigs();
+        Object.keys(configs).forEach(key => {
+            let config = configs[key];
+
+            if ((typeof config.default !== 'undefined') && (typeof data[key] === 'undefined')) {
+                this[key] = config.default;
+            } else {
+                this[key] = config.fromClient ? config.fromClient(data[key]) : data[key];
+            }
+        });
+    }
+
+    toClient(hide?: boolean, references?: boolean | string | string[]): T {
         let output: T = {} as any;
         let configs = this.getConfigs();
         let useReferences: boolean;
@@ -163,14 +168,66 @@ export default class Model<T extends IData, U extends Collection<Model<T, any>, 
                 if (config.reference) {
 
                 }
-                output[key] = config.unwrap ? config.unwrap(this[key]) : this[key];
+                output[key] = config.toClient ? config.toClient(this[key]) : this[key];
+            }
+        });
+        return output;
+    }
+
+    fromServer(data: Partial<U>) {
+        data = data || {};
+        // TODO: Fix baseData
+        // this._baseData = data;
+        let configs = this.getConfigs();
+        Object.keys(configs).forEach(key => {
+            let config = configs[key];
+
+            // TODO: Should a default be used coming from the Server?
+            if ((typeof config.default !== 'undefined') && (typeof data[key] === 'undefined')) {
+                this[key] = config.default;
+            } else {
+                this[key] = config.fromServer ? config.fromServer(data[key]) : data[key];
+            }
+        });
+    }
+
+    toServer(hide?: boolean, references?: boolean | string | string[]): U {
+        let output: U = {} as any;
+        let configs = this.getConfigs();
+        let useReferences: boolean;
+        let referenceHash = {};
+        switch (typeof references) {
+            case 'boolean':
+                useReferences = references as boolean;
+                break;
+            case 'string':
+                useReferences = true;
+                referenceHash[references as string] = true;
+                break;
+            case 'object':
+                if (references instanceof Array) {
+                    useReferences = true;
+                    references.forEach(reference => {
+                        referenceHash[reference] = true;
+                    });
+                }
+                break;
+        }
+
+        Object.keys(configs).forEach(key => {
+            let config = configs[key];
+            if (!hide || !config.hide) {
+                if (config.reference) {
+
+                }
+                output[key] = config.toServer ? config.toServer(this[key]) : this[key];
             }
         });
         return output;
     }
 
     toJSON() {
-        return this.unwrap(true);
+        return JSON.stringify(this.toClient(true));
     }
 
     async save(overwrite?: boolean) {
