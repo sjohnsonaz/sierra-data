@@ -29,13 +29,10 @@ export default class Model<T extends IData, U extends Collection<Model<T, any>, 
         }
     }) _id: MongoDB.ObjectId;
 
-    constructor(data?: Partial<T>, collection?: U) {
+    constructor(collection?: U) {
         Object.defineProperties(this, propertyDefinitions);
 
         this._collection = collection;
-        if (data) {
-            this.wrap(data);
-        }
     }
 
     reset() {
@@ -49,13 +46,12 @@ export default class Model<T extends IData, U extends Collection<Model<T, any>, 
     diff() {
         let keys = this.getKeys();
         let diff: Partial<T> = {};
-        if (this._baseData) {
-            let differentKeys = keys.forEach(key => {
-                if (this[key] !== this._baseData[key]) {
-                    diff[key] = this[key];
-                }
-            });
-        }
+        let baseData = this._baseData;
+        let differentKeys = keys.forEach(key => {
+            if (this[key] !== baseData[key]) {
+                diff[key] = this[key];
+            }
+        });
         return diff;
     }
 
@@ -96,8 +92,18 @@ export default class Model<T extends IData, U extends Collection<Model<T, any>, 
     }
 
     wrap(data: Partial<T>) {
+        data = data || {};
         this._baseData = data;
-        this.getKeys().forEach(key => this[key] = data[key]);
+        let configs = this.getConfigs();
+        Object.keys(configs).forEach(key => {
+            let config = configs[key];
+
+            if ((typeof config.default !== 'undefined') && (typeof data[key] === 'undefined')) {
+                this[key] = config.default;
+            } else {
+                this[key] = config.wrap ? config.wrap(data[key]) : data[key];
+            }
+        });
     }
 
     build(collectionFactory: CollectionFactory, references: string | string[]) {
@@ -157,16 +163,7 @@ export default class Model<T extends IData, U extends Collection<Model<T, any>, 
                 if (config.reference) {
 
                 }
-                let value;
-                if ((typeof config.default !== 'undefined') && (typeof this[key] === 'undefined')) {
-                    value = config.default;
-                } else {
-                    value = this[key];
-                }
-                if (config.unwrap) {
-                    value = config.unwrap(value);
-                }
-                output[key] = value;
+                output[key] = config.unwrap ? config.unwrap(this[key]) : this[key];
             }
         });
         return output;
@@ -181,21 +178,24 @@ export default class Model<T extends IData, U extends Collection<Model<T, any>, 
             this.beforeSave();
             if (this._id) {
                 this.beforeUpdate(overwrite);
-                await this._collection.update(this._id, this, overwrite);
+                return await this._collection.update(this._id, this, overwrite);
             } else {
                 this.beforeInsert();
                 let result = await this._collection.insert(this);
                 this._id = result.insertedId;
+                return result;
             }
-            return this._id;
+            // return this._id;
         }
     }
 
-    delete() {
+    async delete() {
         if (this._collection) {
             if (this._id) {
                 this.beforeDelete();
-                this._collection.delete(this._id);
+                await this._collection.delete(this._id);
+                // TODO: Use result
+                this._id = undefined;
             }
         }
     }

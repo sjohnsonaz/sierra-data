@@ -37,7 +37,8 @@ export default class Service<T extends Model<U>, U extends IData, V extends Coll
 
     @method('get', '/:id')
     async get(id: string) {
-        return await this.collection.get(id);
+        let _id = new MongoDB.ObjectId(id);
+        return await this.collection.get(_id);
     }
 
     @method('post')
@@ -57,7 +58,8 @@ export default class Service<T extends Model<U>, U extends IData, V extends Coll
 
     @method('delete', '/:id')
     async delete(id: string) {
-        await this.collection.delete(id);
+        let _id = new MongoDB.ObjectId(id);
+        await this.collection.delete(_id);
         return true;
     }
 }

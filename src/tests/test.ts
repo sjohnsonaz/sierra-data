@@ -23,9 +23,11 @@ describe('Model.unwrap', () => {
 
         class TestModel extends ParentModel<ITest> {
             @prop({
-                required: true
+                required: true,
+                default: 'abcd'
             })
-            stringValue: string = 'abcd';
+            stringValue: string;
+
             @prop({
                 required: true
             })
@@ -39,13 +41,16 @@ describe('Model.unwrap', () => {
             let collection = new Collection(testCollection, TestModel);
 
             let testModel = collection.create();
-            await collection.insert(testModel);
+            await testModel.save();
+            // await collection.insert(testModel);
+            expect(testModel.stringValue).to.equal('abcd');
 
             testModel.stringValue = 'efgh';
-            await collection.update(testModel._id, testModel);
+            await testModel.save();
+            // await collection.update(testModel._id, testModel);
 
             let result = await collection.get(testModel._id);
-            expect(true).to.equal(true);
+            expect(result.stringValue).to.equal('efgh');
         }
         finally {
             collectionFactory.close();

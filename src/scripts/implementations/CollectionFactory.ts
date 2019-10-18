@@ -8,11 +8,14 @@ export default class CollectionFactory {
     client: MongoDB.MongoClient;
     db: MongoDB.Db;
     collections: {
-        [index:string]: MongoDB.Collection;
+        [index: string]: MongoDB.Collection;
     } = {};
 
     async connect(uri: string, dbName: string) {
-        this.client = await MongoDB.MongoClient.connect(uri, { useNewUrlParser: true });
+        this.client = await MongoDB.MongoClient.connect(uri, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        });
         this.db = this.client.db(dbName);
     }
 

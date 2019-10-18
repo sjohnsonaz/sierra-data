@@ -8,15 +8,16 @@ import Model from './Model';
 
 export default class Collection<T extends Model<U>, U extends IData = ReturnType<T['unwrap']>> {
     collection: MongoDB.Collection;
-    modelConstructor: new (data: Partial<U>, collection?: Collection<T, U>) => T;
+    modelConstructor: new (collection?: Collection<T, U>) => T;
 
-    constructor(collection: MongoDB.Collection, modelConstructor: new (data: Partial<U>, collection?: Collection<T, U>) => T) {
+    constructor(collection: MongoDB.Collection, modelConstructor: new (collection?: Collection<T, U>) => T) {
         this.collection = collection;
         this.modelConstructor = modelConstructor;
     }
 
     create(data?: Partial<U>) {
-        let model = new this.modelConstructor(data, this);
+        let model = new this.modelConstructor(this);
+        model.wrap(data);
         model._collection = this;
         return model;
     }
@@ -25,10 +26,7 @@ export default class Collection<T extends Model<U>, U extends IData = ReturnType
         return await this.collection.insertOne(model.unwrap());
     }
 
-    async update(id: string | MongoDB.ObjectId, model: T, overwrite?: boolean) {
-        if (typeof id === 'string') {
-            id = new MongoDB.ObjectId(id);
-        }
+    async update(id: MongoDB.ObjectId, model: T, overwrite?: boolean) {
         return await this.collection.updateOne({ _id: id }, {
             $set: overwrite ?
                 model.unwrap() :
@@ -43,13 +41,10 @@ export default class Collection<T extends Model<U>, U extends IData = ReturnType
         }
     }
 
-    async get(id: string | MongoDB.ObjectId) {
-        if (typeof id === 'string') {
-            id = new MongoDB.ObjectId(id);
-        }
+    async get(id: MongoDB.ObjectId) {
         let result = await this.collection.findOne<U>({
             _id: id
-        });
+        }, {});
         if (result) {
             return this.create(result);
         }
@@ -80,7 +75,8 @@ export default class Collection<T extends Model<U>, U extends IData = ReturnType
 
         let array = await query.toArray();
         let data = array.map((item) => {
-            let model = new this.modelConstructor(item);
+            let model = new this.modelConstructor();
+            model.wrap(item);
             model._collection = this;
             return model;
         });
@@ -91,10 +87,7 @@ export default class Collection<T extends Model<U>, U extends IData = ReturnType
         };
     }
 
-    delete(id: string | MongoDB.ObjectId) {
-        if (typeof id === 'string') {
-            id = new MongoDB.ObjectId(id);
-        }
+    delete(id: MongoDB.ObjectId) {
         return this.collection.remove({
             _id: id
         });
