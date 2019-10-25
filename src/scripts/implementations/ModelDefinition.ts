@@ -1,22 +1,30 @@
 import Model from './Model';
 import { IClientData } from '../interfaces/IClientData';
 
-export interface IPropertyConfig<T = any, U = T, V = T> {
-    clientKey?: string;
-    serverKey?: string;
+export interface IPropertyConfig<
+    T,
+    U,
+    V,
+    W extends keyof T,
+    X extends keyof U,
+    Y extends keyof V
+    > {
+    key?: W;
+    clientKey?: X;
+    serverKey?: Y;
     type?: any;
     required?: boolean;
-    default?: T;
+    default?: T[W];
     hide?: boolean;
     reference?: {
         collection: string;
         id: string;
     }
-    fromClient?: (value: U) => T;
-    toClient?: (value: T) => U;
-    fromServer?: (value: V) => T;
-    toServer?: (value: T) => V;
-    validation?: (value: T) => boolean;
+    fromClient?: (value: U[X]) => T[W];
+    toClient?: (value: T[W]) => U[X];
+    fromServer?: (value: V[Y]) => T[W];
+    toServer?: (value: T[W]) => V[Y];
+    validation?: (value: T[W]) => boolean;
 
     // String
     minLength?: number;
@@ -28,10 +36,14 @@ export interface IPropertyConfig<T = any, U = T, V = T> {
     maximum?: number;
 }
 
+export interface IModel {
+    _modelDefinition: ModelDefinition;
+}
+
 export default class ModelDefinition {
     parent: ModelDefinition;
     propertyConfigs: {
-        [index: string]: IPropertyConfig;
+        [index: string]: IPropertyConfig<any, any, any, any, any, any>;
     } = {};
 
     constructor(parent?: ModelDefinition) {
@@ -48,7 +60,7 @@ export default class ModelDefinition {
 
     getConfigs() {
         let configHash: {
-            [index: string]: IPropertyConfig;
+            [index: string]: IPropertyConfig<any, any, any, any, any, any>;
         };
         if (this.parent) {
             configHash = this.parent.getConfigs();
@@ -59,11 +71,11 @@ export default class ModelDefinition {
         return configHash;
     }
 
-    getConfig<T extends Model<U>, U extends IClientData>(key: keyof T) {
+    getConfig<T extends IModel>(key: keyof T) {
         return this.propertyConfigs[key as any];
     }
 
-    addConfig<T extends Model<U>, U extends IClientData>(key: keyof T, config: IPropertyConfig<T[keyof T], U[keyof U]>) {
+    addConfig<T extends IModel>(key: keyof T, config: IPropertyConfig<any, any, any, any, any, any>) {
         this.propertyConfigs[key as any] = config;
     }
 

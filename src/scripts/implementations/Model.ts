@@ -17,7 +17,7 @@ export default class Model<
 
     _baseData: Partial<T>;
 
-    @prop<Model<T>, T, '_id'>({
+    @prop({
         fromClient: (value: string | MongoDB.ObjectId) => {
             if (typeof value === 'string') {
                 return new MongoDB.ObjectId(value);
