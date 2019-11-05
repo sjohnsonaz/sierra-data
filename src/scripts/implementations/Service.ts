@@ -7,7 +7,7 @@ import Model from './Model';
 import { IServerData } from '../interfaces/IServerData';
 
 export default class Service<
-    T extends Model<U, V>,
+    T extends Model<any, any>,
     U extends IClientData = ReturnType<T['toClient']>,
     V extends IServerData = ReturnType<T['toServer']>,
     W extends Collection<T, U, V> = Collection<T, U, V>

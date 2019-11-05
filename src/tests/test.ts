@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import * as MongoDB from 'mongodb';
 
 import Model from '../scripts/implementations/Model';
 import CollectionFactory from '../scripts/implementations/CollectionFactory';
@@ -18,11 +17,11 @@ describe('Model', function () {
     });
 
     it('should create an object with all valid properties', async function () {
-        interface IParent {
+        interface IParent extends IClientData {
             parentValue: string;
         }
 
-        class ParentModel<T extends IParent> extends Model<T & IClientData> {
+        class ParentModel<T extends IParent> extends Model<T> {
             @prop() parentValue: string = 'parent';
         }
 
@@ -50,12 +49,10 @@ describe('Model', function () {
         let testModel = collection.create();
         testModel.fromClient({});
         await testModel.save();
-        // await collection.insert(testModel);
         expect(testModel.stringValue).to.equal('abcd');
 
         testModel.stringValue = 'efgh';
         await testModel.save();
-        // await collection.update(testModel._id, testModel);
 
         let result = await collection.get(testModel._id);
         collection.findOne({ _id: testModel._id })

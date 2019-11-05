@@ -8,7 +8,7 @@ import Model from './Model';
 import { IServerData } from '../interfaces/IServerData';
 
 export default class Collection<
-    T extends Model<U, V>,
+    T extends Model<any, any>,
     U extends IClientData = ReturnType<T['toClient']>,
     V extends IServerData = ReturnType<T['toServer']>
 > {
