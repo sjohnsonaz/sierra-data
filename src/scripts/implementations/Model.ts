@@ -10,7 +10,7 @@ import CollectionFactory from './CollectionFactory';
 export default class Model<
     T extends IClientData,
     U extends IData<T> = IData<T>,
-    V extends Collection<Model<T, U, any>, T, U> = Collection<Model<T, U, any>, T, U>
+    V extends Collection<Model<T, U, any>> = Collection<Model<T, U, any>>
     > {
     _modelDefinition: ModelDefinition;
     _collection: V;
