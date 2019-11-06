@@ -1,8 +1,7 @@
 /// <reference types="bson" />
 export { Binary, DBRef, Decimal128, Double, Long, MaxKey, MinKey, ObjectId, Timestamp } from 'bson';
 
-export { IClientData } from './interfaces/IClientData';
-export { IServerData } from './interfaces/IServerData';
+export { IClientData, IServerData, IData } from './interfaces/IData';
 export { IQuery } from './interfaces/IQuery';
 export { IQueryResult } from './interfaces/IQueryResult';
 export { default as Collection } from './implementations/Collection';

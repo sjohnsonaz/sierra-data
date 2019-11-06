@@ -1,17 +1,16 @@
 import * as MongoDB from 'mongodb';
 
-import { IClientData } from '../interfaces/IClientData';
+import { IClientData, IServerData } from '../interfaces/IData';
 import { IQuery } from '../interfaces/IQuery';
 import { IQueryResult } from '../interfaces/IQueryResult';
 
 import Model from './Model';
-import { IServerData } from '../interfaces/IServerData';
 
 export default class Collection<
-    T extends Model<U, V>,
+    T extends Model<any, any>,
     U extends IClientData = ReturnType<T['toClient']>,
     V extends IServerData = ReturnType<T['toServer']>
-> {
+    > {
     collection: MongoDB.Collection<V>;
     modelConstructor: new (collection?: Collection<T, U, V>) => T;
 

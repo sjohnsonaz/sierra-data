@@ -1,15 +1,15 @@
 import * as MongoDB from 'mongodb';
 
+import { IClientData, IData } from "../interfaces/IData";
+
 import ModelDefinition from './ModelDefinition';
 import { prop } from './Decorators';
-import { IClientData } from "../interfaces/IClientData";
-import { IServerData } from '../interfaces/IServerData';
 import Collection from "./Collection";
 import CollectionFactory from './CollectionFactory';
 
 export default class Model<
     T extends IClientData,
-    U extends IServerData = IServerData,
+    U extends IData<T> = IData<T>,
     V extends Collection<Model<T, U, any>, T, U> = Collection<Model<T, U, any>, T, U>
     > {
     _modelDefinition: ModelDefinition;
@@ -41,11 +41,17 @@ export default class Model<
     }
 
     reset() {
-        // this.wrap(this._baseData);
+        let configs = this.getConfigs();
+        Object.keys(configs).forEach(key => {
+            this[key] = this._baseData[key];
+        });
     }
 
     update() {
-        // this._baseData = this.unwrap();
+        let configs = this.getConfigs();
+        Object.keys(configs).forEach(key => {
+            this._baseData[key] = this[key];
+        });
     }
 
     diff() {
@@ -126,15 +132,18 @@ export default class Model<
 
     fromClient(data: Partial<T>) {
         data = data || {};
-        this._baseData = data;
+        this._baseData = {};
         let configs = this.getConfigs();
         Object.keys(configs).forEach(key => {
             let config = configs[key];
-
             if ((typeof config.default !== 'undefined') && (typeof data[key] === 'undefined')) {
-                this[key] = config.default;
+                let value = config.default;
+                this[key] = value;
+                this._baseData[key] = value;
             } else {
-                this[key] = config.fromClient ? config.fromClient(data[key]) : data[key];
+                let value = config.fromClient ? config.fromClient(data[key]) : data[key];
+                this[key] = value;
+                this._baseData[key] = value;
             }
         });
     }
@@ -176,17 +185,20 @@ export default class Model<
 
     fromServer(data: Partial<U>) {
         data = data || {};
-        // TODO: Fix baseData
-        // this._baseData = data;
+        this._baseData = {};
         let configs = this.getConfigs();
         Object.keys(configs).forEach(key => {
             let config = configs[key];
 
             // TODO: Should a default be used coming from the Server?
             if ((typeof config.default !== 'undefined') && (typeof data[key] === 'undefined')) {
-                this[key] = config.default;
+                let value = config.default;
+                this[key] = value;
+                this._baseData[key] = value;
             } else {
-                this[key] = config.fromServer ? config.fromServer(data[key]) : data[key];
+                let value = config.fromServer ? config.fromServer(data[key]) : data[key];
+                this[key] = value;
+                this._baseData[key] = value;
             }
         });
     }
