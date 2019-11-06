@@ -1,5 +1,6 @@
+import { IClientData } from '../interfaces/IData';
+
 import Model from './Model';
-import { IClientData } from '../interfaces/IClientData';
 
 export interface IPropertyConfig<
     T,

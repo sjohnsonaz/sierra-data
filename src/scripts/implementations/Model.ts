@@ -1,15 +1,15 @@
 import * as MongoDB from 'mongodb';
 
+import { IClientData, IData } from "../interfaces/IData";
+
 import ModelDefinition from './ModelDefinition';
 import { prop } from './Decorators';
-import { IClientData } from "../interfaces/IClientData";
-import { IServerData } from '../interfaces/IServerData';
 import Collection from "./Collection";
 import CollectionFactory from './CollectionFactory';
 
 export default class Model<
     T extends IClientData,
-    U extends Omit<T, '_id'> & IServerData = Omit<T, '_id'> & IServerData,
+    U extends IData<T> = IData<T>,
     V extends Collection<Model<T, U, any>, T, U> = Collection<Model<T, U, any>, T, U>
     > {
     _modelDefinition: ModelDefinition;

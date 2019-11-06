@@ -1,10 +1,10 @@
 import { method, IMiddleware, Controller } from 'sierra';
 import * as MongoDB from 'mongodb';
 
-import { IClientData } from '../interfaces/IClientData';
+import { IClientData, IServerData } from '../interfaces/IData';
+
 import Collection from './Collection';
 import Model from './Model';
-import { IServerData } from '../interfaces/IServerData';
 
 export default class Service<
     T extends Model<any, any>,
