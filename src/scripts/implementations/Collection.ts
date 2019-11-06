@@ -1,20 +1,14 @@
 import * as MongoDB from 'mongodb';
 
-import { IClientData, IServerData } from '../interfaces/IData';
-import { IQuery } from '../interfaces/IQuery';
 import { IQueryResult } from '../interfaces/IQueryResult';
 
 import Model from './Model';
 
-export default class Collection<
-    T extends Model<any, any>,
-    U extends IClientData = ReturnType<T['toClient']>,
-    V extends IServerData = ReturnType<T['toServer']>
-    > {
-    collection: MongoDB.Collection<V>;
-    modelConstructor: new (collection?: Collection<T, U, V>) => T;
+export default class Collection<T extends Model<any, any>> {
+    collection: MongoDB.Collection<ReturnType<T['toServer']>>;
+    modelConstructor: new (collection?: Collection<T>) => T;
 
-    constructor(collection: MongoDB.Collection<V>, modelConstructor: new (collection?: Collection<T, U, V>) => T) {
+    constructor(collection: MongoDB.Collection<ReturnType<T['toServer']>>, modelConstructor: new (collection?: Collection<T>) => T) {
         this.collection = collection;
         this.modelConstructor = modelConstructor;
     }
@@ -41,7 +35,7 @@ export default class Collection<
         } as any);
     }
 
-    async findOne(query: Partial<V>) {
+    async findOne(query: Partial<ReturnType<T['toServer']>>) {
         let result = await this.collection.findOne(query);
         if (result) {
             let model = this.create();
@@ -67,7 +61,7 @@ export default class Collection<
     }
 
     async list(params: {
-        find: Partial<V>;
+        find: Partial<ReturnType<T['toServer']>>;
         offset: number;
         limit: number;
         sort: any;
