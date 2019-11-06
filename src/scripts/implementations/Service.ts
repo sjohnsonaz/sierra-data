@@ -27,7 +27,7 @@ export default class Service<
         if (!_limit || isNaN(_limit) || !isFinite(_limit)) {
             _limit = 20;
         }
-        return this.collection.list({
+        let result = await this.collection.list({
             find: {} as any,
             offset: _offset,
             limit: _limit,
@@ -39,12 +39,17 @@ export default class Service<
                 }
             })()
         });
+        return {
+            count: result.count,
+            results: result.results.map(data => data.toClient())
+        }
     }
 
     @method('get', '/:id')
     async get(id: string) {
         let _id = new MongoDB.ObjectId(id);
-        return await this.collection.get(_id);
+        let model = await this.collection.get(_id);
+        return model.toClient();
     }
 
     @method('post')
@@ -52,7 +57,7 @@ export default class Service<
         let model = this.collection.create();
         model.fromClient($body);
         await model.save();
-        return model._id;
+        return model._id.toHexString();
     }
 
     @method('put', '/:id')
