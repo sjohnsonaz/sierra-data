@@ -16,7 +16,7 @@ describe('Model', function () {
         await collectionFactory.close();
     });
 
-    it('should create an object with all valid properties', async function () {
+    it('should handle inheritance', async function () {
         interface IParent extends IClientData {
             parentValue: string;
         }
@@ -56,6 +56,50 @@ describe('Model', function () {
 
         let result = await collection.get(testModel._id);
         collection.findOne({ _id: testModel._id })
+        expect(result.stringValue).to.equal('efgh');
+    });
+
+    it('should handle composition', async function () {
+        interface IChild extends IClientData {
+            childValue: string;
+        }
+
+        class ChildModel extends Model<IChild> {
+            @prop() childValue: string = 'parent';
+        }
+
+        interface IParent extends IClientData {
+            child: IChild;
+            stringValue: string;
+            numberValue: number;
+        }
+
+        class ParentModel extends Model<IParent> {
+            @prop({
+                required: true,
+                default: 'abcd'
+            })
+            stringValue: string;
+
+            @prop({
+                required: true
+            })
+            numberValue: number;
+        }
+
+        let parentCollection = collectionFactory.getCollection('testcollection');
+        let collection = new Collection<ParentModel>(parentCollection, ParentModel);
+
+        let parentModel = collection.create();
+        parentModel.fromClient({});
+        await parentModel.save();
+        expect(parentModel.stringValue).to.equal('abcd');
+
+        parentModel.stringValue = 'efgh';
+        await parentModel.save();
+
+        let result = await collection.get(parentModel._id);
+        collection.findOne({ _id: parentModel._id })
         expect(result.stringValue).to.equal('efgh');
     });
 });
