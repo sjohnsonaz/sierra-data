@@ -239,7 +239,7 @@ export default class Model<
     }
 
     toJSON() {
-        return JSON.stringify(this.toClient(true));
+        return this.toClient(true);
     }
 
     async save(overwrite?: boolean) {
