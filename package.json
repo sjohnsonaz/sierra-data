@@ -26,19 +26,19 @@
     "bson": "4.0.2"
   },
   "peerDependencies": {
-    "mongodb": "3.1.13",
+    "mongodb": "3.3.3",
     "sierra": "^0.3.14"
   },
   "devDependencies": {
-    "@types/chai": "4.1.7",
-    "@types/mocha": "5.2.6",
-    "@types/mongodb": "3.1.22",
+    "@types/chai": "4.2.3",
+    "@types/mocha": "5.2.7",
+    "@types/mongodb": "3.3.6",
     "chai": "4.2.0",
-    "mocha": "6.0.2",
-    "mongodb": "3.1.13",
-    "nodemon": "1.18.4",
-    "rimraf": "2.6.3",
+    "mocha": "6.2.1",
+    "mongodb": "3.3.3",
+    "nodemon": "1.19.4",
+    "rimraf": "3.0.0",
     "sierra": "^0.3.14",
-    "typescript": "3.3.4000"
+    "typescript": "3.6.4"
   }
 }
