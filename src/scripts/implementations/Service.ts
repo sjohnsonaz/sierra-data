@@ -1,11 +1,13 @@
-import { method, IMiddleware, Controller } from 'sierra';
+import { method, Controller } from 'sierra';
 import * as MongoDB from 'mongodb';
 
-import { IData } from '../interfaces/IData';
 import Collection from './Collection';
 import Model from './Model';
 
-export default class Service<T extends Model<U>, U extends IData, V extends Collection<T, U>> extends Controller {
+export default class Service<
+    T extends Model<any, any>,
+    V extends Collection<T> = Collection<T>
+    > extends Controller {
     collection: V;
 
     constructor(base: string, collection: V) {
@@ -37,19 +39,23 @@ export default class Service<T extends Model<U>, U extends IData, V extends Coll
 
     @method('get', '/:id')
     async get(id: string) {
-        return await this.collection.get(id);
+        let _id = new MongoDB.ObjectId(id);
+        let model = await this.collection.get(_id);
+        return model;
     }
 
     @method('post')
-    async post($body: U) {
-        let model = this.collection.create($body);
+    async post($body: ReturnType<T['toClient']>) {
+        let model = this.collection.create();
+        model.fromClient($body);
         await model.save();
         return model._id;
     }
 
     @method('put', '/:id')
-    async put(id: string, $body: U) {
-        let model = this.collection.create($body);
+    async put(id: string, $body: Partial<ReturnType<T['toClient']>>) {
+        let model = this.collection.create();
+        model.fromClient($body);
         model._id = new MongoDB.ObjectId(id);
         await model.save(true);
         return true;
@@ -57,7 +63,8 @@ export default class Service<T extends Model<U>, U extends IData, V extends Coll
 
     @method('delete', '/:id')
     async delete(id: string) {
-        await this.collection.delete(id);
+        let _id = new MongoDB.ObjectId(id);
+        await this.collection.delete(_id);
         return true;
     }
 }
