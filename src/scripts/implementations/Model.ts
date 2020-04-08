@@ -49,6 +49,9 @@ export default class Model<
 
     update() {
         let configs = this.getConfigs();
+        if (!this._baseData) {
+            this._baseData = {}
+        }
         Object.keys(configs).forEach(key => {
             this._baseData[key] = this[key];
         });
@@ -247,11 +250,14 @@ export default class Model<
             this.beforeSave();
             if (this._id) {
                 this.beforeUpdate(overwrite);
-                return await this._collection.update(this._id, this, overwrite);
+                let result = await this._collection.update(this._id, this, overwrite);
+                this.update();
+                return result;
             } else {
                 this.beforeInsert();
                 let result = await this._collection.insert(this);
                 this._id = result.insertedId;
+                this.update();
                 return result;
             }
             // return this._id;
