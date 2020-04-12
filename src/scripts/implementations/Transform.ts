@@ -4,7 +4,14 @@ export type TransformHash = {
     };
 };
 
-export type Constructor<T> = new (...params: any[]) => T;
+export interface NewConstructor<T> {
+    new(...params: any[]): T;
+}
+
+export interface FactoryConstructor<T> {
+    (...params: any[]): T;
+}
+export type Constructor<T> = NewConstructor<T> | FactoryConstructor<T>;
 
 function getID(constructor: Constructor<any>) {
     if (constructor.name) {
@@ -28,7 +35,7 @@ export class TransformRegistry {
         }
         toHash[toSymbol as any] = transform;
     }
-    run(from: any, to: any, value: any) {
+    run<T, U>(from: Constructor<T>, to: Constructor<U>, value: T): U {
         let fromSymbol = getID(from);
         let toSymbol = getID(to);
         let toHash = this.fromHash[fromSymbol as any];
@@ -43,12 +50,36 @@ export class TransformRegistry {
             }
         }
     }
+    convert<T, U>(value: T, to: Constructor<U>): U {
+        let from = this.getConstructor(value);
+        return this.run(from, to, value);
+    }
+    getConstructor<T>(value: T): Constructor<T> {
+        let type = typeof value;
+        switch (type) {
+            case 'boolean':
+                return Boolean as any;
+            case 'number':
+                return Number as any;
+            case 'string':
+                return String as any;
+            case 'object':
+                if (value === null) {
+                    return undefined;
+                }
+                return value.constructor as any;
+            case 'function':
+                return Function as any;
+            case 'bigint':
+                return BigInt as any;
+            // case 'undefined':
+            // case 'symbol':
+            default:
+                return undefined;
+        }
+    }
 }
 
-let transformRegistry = new TransformRegistry();
-
-function StringNumber(value: string) {
-    return Number(value);
+interface JsonObject {
+    [index: string]: number | string | JsonObject;
 }
-transformRegistry.register(String, Number, StringNumber);
-transformRegistry.run(String, Number, '1234');
