@@ -23,19 +23,44 @@ function getID(constructor: Constructor<any>) {
     return constructor['_transformID'] as Symbol;
 }
 
+export interface ITransformHandler<T, U> {
+    from: Constructor<T>;
+    to: Constructor<U>;
+    fromTransform: (value: T) => U;
+    toTransform?: (value: U) => T;
+}
+
 export class TransformRegistry {
-    fromHash: TransformHash = {};
-    register<T, U>(from: Constructor<T>, to: Constructor<U>, transform: (value: T) => U) {
-        let fromSymbol = getID(from);
-        let toSymbol = getID(to);
-        let toHash = this.fromHash[fromSymbol as any];
+    private fromHash: TransformHash = {};
+
+    private registerSymbol<T, U>(from: Symbol, to: Symbol, transform: (value: T) => U) {
+        let toHash = this.fromHash[from as any];
         if (!toHash) {
             toHash = {};
-            this.fromHash[fromSymbol as any] = toHash;
+            this.fromHash[from as any] = toHash;
         }
-        toHash[toSymbol as any] = transform;
+        toHash[to as any] = transform;
     }
-    run<T, U>(from: Constructor<T>, to: Constructor<U>, value: T): U {
+
+    register<T, U>(from: Constructor<T>, to: Constructor<U>, fromTransform: (value: T) => U, toTransform?: (value: U) => T) {
+        let fromSymbol = getID(from);
+        let toSymbol = getID(to);
+        this.registerSymbol(fromSymbol, toSymbol, fromTransform);
+        if (toTransform) {
+            this.registerSymbol(toSymbol, fromSymbol, toTransform);
+        }
+    }
+
+    registerHandler<T, U>(transformHandler: ITransformHandler<T, U>) {
+        this.register(
+            transformHandler.from,
+            transformHandler.to,
+            transformHandler.fromTransform,
+            transformHandler.toTransform
+        );
+    }
+
+    run<T, U>(value: T, from: Constructor<T>, to: Constructor<U>): U {
         let fromSymbol = getID(from);
         let toSymbol = getID(to);
         if (fromSymbol === toSymbol) {
@@ -53,11 +78,8 @@ export class TransformRegistry {
             }
         }
     }
-    convert<T, U>(value: T, to: Constructor<U>): U {
-        let from = this.getConstructor(value);
-        return this.run(from, to, value);
-    }
-    getConstructor<T>(value: T): Constructor<T> {
+
+    private getConstructor<T>(value: T): Constructor<T> {
         let type = typeof value;
         switch (type) {
             case 'boolean':
@@ -80,6 +102,11 @@ export class TransformRegistry {
             default:
                 return undefined;
         }
+    }
+
+    convert<T, U>(value: T, to: Constructor<U>): U {
+        let from = this.getConstructor(value);
+        return this.run(value, from, to);
     }
 }
 
