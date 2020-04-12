@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 
-import Model from '../scripts/implementations/Model';
-import CollectionFactory from '../scripts/implementations/CollectionFactory';
-import { prop } from '../scripts/implementations/Decorators';
-import { Collection, IClientData } from '../scripts/SierraData';
+import Model from './Model';
+import CollectionFactory from '../collection/CollectionFactory';
+import { prop } from '../decorators/Decorators';
+import { Collection, IClientData } from '../SierraData';
 
 describe('Model', function () {
     let collectionFactory = new CollectionFactory();

@@ -2,7 +2,7 @@ import * as MongoDB from 'mongodb';
 
 import { IQueryResult } from '../interfaces/IQueryResult';
 
-import Model from './Model';
+import Model from '../model/Model';
 
 export default class Collection<T extends Model<any, any>> {
     collection: MongoDB.Collection<ReturnType<T['toServer']>>;

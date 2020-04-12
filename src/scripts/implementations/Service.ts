@@ -1,8 +1,8 @@
 import { method, Controller } from 'sierra';
 import * as MongoDB from 'mongodb';
 
-import Collection from './Collection';
-import Model from './Model';
+import Collection from '../collection/Collection';
+import Model from '../model/Model';
 
 export default class Service<
     T extends Model<any, any>,

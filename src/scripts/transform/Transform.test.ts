@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import { TransformRegistry } from "../scripts/implementations/Transform";
+import { TransformRegistry } from "./Transform";
 
 describe('TransformRegistry', function () {
     let transformRegistry = new TransformRegistry();

@@ -1,5 +1,5 @@
-import Model from './Model';
-import ModelDefinition, { IPropertyConfig } from './ModelDefinition';
+import Model from '../model/Model';
+import ModelDefinition, { IPropertyConfig } from '../model/ModelDefinition';
 
 export function prop(
     config?: IPropertyConfig<any, any, any, any, any, any>

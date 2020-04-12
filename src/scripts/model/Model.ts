@@ -3,9 +3,9 @@ import * as MongoDB from 'mongodb';
 import { IClientData, IData } from "../interfaces/IData";
 
 import ModelDefinition from './ModelDefinition';
-import { prop } from './Decorators';
-import Collection from "./Collection";
-import CollectionFactory from './CollectionFactory';
+import { prop } from '../decorators/Decorators';
+import Collection from "../collection/Collection";
+import CollectionFactory from '../collection/CollectionFactory';
 
 export default class Model<
     T extends IClientData,
