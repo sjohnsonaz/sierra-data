@@ -3,25 +3,36 @@ import { expect } from 'chai';
 import { TransformRegistry } from "../scripts/implementations/Transform";
 
 describe('TransformRegistry', function () {
-    it('Should convert strings to numbers', function () {
-        let transformRegistry = new TransformRegistry();
+    let transformRegistry = new TransformRegistry();
 
-        function StringNumber(value: string) {
-            return Number(value);
-        }
-        transformRegistry.register(String, Number, StringNumber);
+    transformRegistry.register(String, Number, value => Number(value));
+    transformRegistry.register(Number, String, value => value.toString());
+    transformRegistry.register(String, Date, function StringDate(value: string) {
+        return new Date(value);
+    });
+    transformRegistry.register(Date, String, function DateString(value: Date) {
+        return value.toISOString();
+    });
+
+    it('Should convert strings to numbers', function () {
         let result = transformRegistry.convert('1234', Number);
         expect(result).to.equal(1234);
     });
 
     it('Should convert numbers to strings', function () {
-        let transformRegistry = new TransformRegistry();
-
-        function NumberString(value: number) {
-            return value.toString();
-        }
-        transformRegistry.register(Number, String, NumberString);
         let result = transformRegistry.convert(1234, String);
         expect(result).to.equal('1234');
+    });
+
+    it('Should convert numbers to strings', function () {
+        let result = transformRegistry.convert(1234, String);
+        expect(result).to.equal('1234');
+    });
+
+    it('Should convert strings to Dates', function () {
+        let now = new Date(Date.now()).toISOString();
+
+        let result = transformRegistry.convert(now, Date);
+        expect(result.toISOString()).to.equal(now);
     });
 });

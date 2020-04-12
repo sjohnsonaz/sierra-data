@@ -38,6 +38,9 @@ export class TransformRegistry {
     run<T, U>(from: Constructor<T>, to: Constructor<U>, value: T): U {
         let fromSymbol = getID(from);
         let toSymbol = getID(to);
+        if (fromSymbol === toSymbol) {
+            return value as any;
+        }
         let toHash = this.fromHash[fromSymbol as any];
         if (!toHash) {
             throw `No transform available for ${from} to ${to}`;
