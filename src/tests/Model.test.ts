@@ -9,7 +9,7 @@ describe('Model', function () {
     let collectionFactory = new CollectionFactory();
 
     before(async function () {
-        await collectionFactory.connect('mongodb://localhost:27017', 'sierra-data');
+        await collectionFactory.connect(global['mongoUri'], 'sierra-data');
     });
 
     after(async function () {
