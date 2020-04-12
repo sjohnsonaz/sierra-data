@@ -18,8 +18,7 @@
     "sourceMap": true,
     "allowSyntheticDefaultImports": true,
     "lib": [
-      "es6",
-      "es2015.promise"
+      "es2017"
     ]
   },
   "include": [
