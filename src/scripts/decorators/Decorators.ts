@@ -82,19 +82,27 @@ export class Decorators<T extends Model<any>> {
         };
     }
 
-    transform<V extends keyof T = keyof T, U extends keyof T = keyof T>(
-        from?: Constructor<any>,
-        to?: Constructor<any>
-    ): void {
-        //TransformRegistry.
+    transform<U extends keyof T>(transformSet: string, to?: Constructor<any>) {
+        return function (
+            target: T,
+            propertyKey: U
+        ) {
+            let config = ModelDefinition.getConfig(target, propertyKey);
+            if (!config.type) {
+                var type = Reflect.getMetadata("design:type", target, propertyKey as any);
+                config.type = type;
+            }
+        };
     }
 
-    instanceOf<U extends keyof T>(constructor: Constructor<any>) {
+    type<U extends keyof T>(constructor?: Constructor<T[U]>) {
         return function (
             target: T,
             propertyKey
         ) {
-
+            let config = ModelDefinition.getConfig(target, propertyKey);
+            var type = Reflect.getMetadata("design:type", target, propertyKey as any);
+            config.type = type;
         };
     }
 }

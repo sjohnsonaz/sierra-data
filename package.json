@@ -23,7 +23,8 @@
   },
   "dependencies": {
     "@types/bson": "4.0.2",
-    "bson": "4.0.4"
+    "bson": "4.0.4",
+    "reflect-metadata": "0.1.13"
   },
   "peerDependencies": {
     "mongodb": "3.5.5",

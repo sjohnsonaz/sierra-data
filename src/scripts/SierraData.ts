@@ -1,4 +1,7 @@
 /// <reference types="bson" />
+
+import 'reflect-metadata';
+
 export { Binary, DBRef, Decimal128, Double, Long, MaxKey, MinKey, ObjectId, Timestamp } from 'bson';
 
 export { IClientData, IServerData, IData } from './interfaces/IData';

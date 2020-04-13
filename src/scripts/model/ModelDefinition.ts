@@ -1,6 +1,7 @@
 import { IClientData } from '../interfaces/IData';
 
 import Model from './Model';
+import { Constructor } from '../transform/Transform';
 
 export interface IPropertyConfig<
     T,
@@ -13,7 +14,7 @@ export interface IPropertyConfig<
     key?: W;
     clientKey?: X;
     serverKey?: Y;
-    type?: any;
+    type?: Constructor<T[W]>;
     required?: boolean;
     default?: T[W];
     hide?: boolean;
