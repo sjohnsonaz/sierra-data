@@ -67,18 +67,22 @@ describe('Decorators', function () {
                 expect(invalidFields).does.not.include('requiredTruthy');
             });
 
-            it('should not mark if zero', function () {
+            it('should not mark if zero or false', function () {
                 let { required } = getDecorators<TestClass>();
 
                 class TestClass extends Model<any> {
                     @required()
                     requiredZero: number = 0;
+
+                    @required()
+                    requiredFalse: boolean = false;
                 }
 
                 let testClass = new TestClass();
                 let invalidFields = testClass.validate();
 
                 expect(invalidFields).does.not.include('requiredZero');
+                expect(invalidFields).does.not.include('requiredFalse');
             });
 
             it('should mark if falsy', function () {

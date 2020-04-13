@@ -99,7 +99,7 @@ export default class Model<
             let config = configs[key];
             if (config && config.required) {
                 let value = this[key];
-                if (!value && value !== 0) {
+                if (!value && value !== 0 && value !== false) {
                     output.push(key);
                 }
             }
