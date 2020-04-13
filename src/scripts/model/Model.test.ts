@@ -2,7 +2,7 @@ import { expect } from 'chai';
 
 import Model from './Model';
 import CollectionFactory from '../collection/CollectionFactory';
-import { prop } from '../decorators/Decorators';
+import { prop, getDecorators } from '../decorators/Decorators';
 import { Collection, IClientData } from '../SierraData';
 
 describe('Model', function () {
@@ -102,4 +102,24 @@ describe('Model', function () {
         collection.findOne({ _id: parentModel._id })
         expect(result.stringValue).to.equal('efgh');
     });
+
+    it('should support all Decorators', function () {
+        let {
+            required,
+            min,
+            max
+        } = getDecorators<TestClass>();
+
+        class TestClass extends Model<any> {
+            @min(0)
+            @required
+            testA: number;
+
+            @max(10)
+            testString: number;
+
+            @max(10)
+            testB: number;
+        }
+    })
 });

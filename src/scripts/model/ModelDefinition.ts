@@ -80,6 +80,13 @@ export default class ModelDefinition {
         this.propertyConfigs[key as any] = config;
     }
 
+    getOrCreateConfig<T extends IModel>(key: keyof T) {
+        if (!this.propertyConfigs[key as any]) {
+            this.propertyConfigs[key as any] = {};
+        }
+        return this.propertyConfigs[key as any];
+    }
+
     static getModelDefinition<T extends IClientData = any>(target: Model<T>) {
         if (target._modelDefinition) {
             if (!target.hasOwnProperty('_modelDefinition')) {
@@ -89,5 +96,15 @@ export default class ModelDefinition {
             target._modelDefinition = new ModelDefinition();
         }
         return target._modelDefinition;
+    }
+
+    static addConfig<T extends IClientData = any>(target: Model<T>, key: keyof T, config: IPropertyConfig<any, any, any, any, any, any>) {
+        let modelDefinition = this.getModelDefinition(target as any);
+        modelDefinition.addConfig(key as any, config || {} as any);
+    }
+
+    static getConfig<T extends IClientData = any>(target: Model<T>, key: keyof T) {
+        let modelDefinition = this.getModelDefinition(target as any);
+        return modelDefinition.getOrCreateConfig(key as any);
     }
 }
