@@ -90,6 +90,10 @@ export class Decorators<T extends Model<any>> {
             let config = ModelDefinition.getConfig(target, propertyKey);
             let modelDefinition = ModelDefinition.getModelDefinition(target);
             modelDefinition.transformConfig.register(transformSet, propertyKey as never, to);
+            if (!modelDefinition.transformConfig.getType(propertyKey as never)) {
+                let type = Reflect.getMetadata("design:type", target, propertyKey as any);
+                modelDefinition.transformConfig.setType(propertyKey as never, type);
+            }
         };
     }
 
@@ -100,9 +104,12 @@ export class Decorators<T extends Model<any>> {
         ) {
             let config = ModelDefinition.getConfig(target, propertyKey);
             let modelDefinition = ModelDefinition.getModelDefinition(target);
-            modelDefinition.transformConfig.setType(propertyKey as never, constructor as any);
-            //var type = Reflect.getMetadata("design:type", target, propertyKey as any);
-            //config.type = type;
+            if (!constructor) {
+                constructor = Reflect.getMetadata("design:type", target, propertyKey as any);
+            }
+            if (constructor) {
+                modelDefinition.transformConfig.setType(propertyKey as never, constructor as any);
+            }
         };
     }
 }

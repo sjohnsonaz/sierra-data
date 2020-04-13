@@ -25,11 +25,11 @@ describe('Transform', function () {
     } = getDecorators<TestClass>()
 
     class TestClass extends Model<any>{
-        @type(Date)
+        //@type(Date)
         @transform('client', String)
         date: Date = new Date(Date.now());
 
-        @type(Number)
+        //@type(Number)
         @transform('client', String)
         number: number = 1234;
     }
