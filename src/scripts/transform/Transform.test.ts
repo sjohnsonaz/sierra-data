@@ -1,14 +1,14 @@
 import { expect } from 'chai';
 
-import { TransformRegistry } from "./Transform";
+import Transform from "./Transform";
 
-describe('TransformRegistry', function () {
-    let transformRegistry = new TransformRegistry();
+describe('Transform', function () {
+    let transform = new Transform();
 
-    transformRegistry.register(String, Number,
+    transform.register(String, Number,
         value => Number(value),
         value => value.toString());
-    transformRegistry.register(String, Date,
+    transform.register(String, Date,
         function StringDate(value: string) {
             return new Date(value);
         },
@@ -20,7 +20,7 @@ describe('TransformRegistry', function () {
         let testString = '1234';
         let testNumber = 1234;
 
-        let result = transformRegistry.convert(testString, Number);
+        let result = transform.convert(testString, Number);
         expect(result).to.equal(testNumber);
     });
 
@@ -28,21 +28,21 @@ describe('TransformRegistry', function () {
         let testString = '1234';
         let testNumber = 1234;
 
-        let result = transformRegistry.convert(testNumber, String);
+        let result = transform.convert(testNumber, String);
         expect(result).to.equal(testString);
     });
 
     it('Should convert strings to Dates', function () {
         let testDate = new Date(Date.now());
 
-        let result = transformRegistry.convert(testDate.toISOString(), Date);
+        let result = transform.convert(testDate.toISOString(), Date);
         expect(result.getTime()).to.equal(testDate.getTime());
     });
 
     it('Should convert Dates to strings', function () {
         let testDate = new Date(Date.now());
 
-        let result = transformRegistry.convert(testDate, String);
+        let result = transform.convert(testDate, String);
         expect(result).to.equal(testDate.toISOString());
     });
 });

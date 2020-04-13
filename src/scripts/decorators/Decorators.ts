@@ -1,6 +1,6 @@
 import Model from '../model/Model';
 import ModelDefinition, { IPropertyConfig } from '../model/ModelDefinition';
-import { Constructor, TransformRegistry } from '../transform/Transform';
+import Transform, { Constructor } from '../transform/Transform';
 
 export function prop(
     config?: IPropertyConfig<any, any, any, any, any, any>
@@ -22,12 +22,24 @@ export class Decorators<T extends Model<any>> {
 
     }
 
-    required<U extends keyof T>(
-        target: T,
-        propertyKey: U
-    ) {
-        let config = ModelDefinition.getConfig(target, propertyKey);
-        config.required = true;
+    defaultValue<U extends keyof T>(value: T[U]) {
+        return function (
+            target: T,
+            propertyKey: U
+        ) {
+            let config = ModelDefinition.getConfig(target, propertyKey);
+            config.default = value;
+        }
+    }
+
+    required<U extends keyof T>(value: boolean = true) {
+        return function (
+            target: T,
+            propertyKey: U
+        ) {
+            let config = ModelDefinition.getConfig(target, propertyKey);
+            config.required = true;
+        };
     }
 
     min<U extends KeysOfType<T, number>>(value: number) {
@@ -37,7 +49,7 @@ export class Decorators<T extends Model<any>> {
         ) {
             let config = ModelDefinition.getConfig(target, propertyKey);
             config.minimum = value;
-        }
+        };
     }
 
     max<U extends KeysOfType<T, number>>(value: number) {
@@ -47,7 +59,7 @@ export class Decorators<T extends Model<any>> {
         ) {
             let config = ModelDefinition.getConfig(target, propertyKey);
             config.maximum = value;
-        }
+        };
     }
 
     minLength<U extends KeysOfType<T, string>>(value: number) {
@@ -57,7 +69,7 @@ export class Decorators<T extends Model<any>> {
         ) {
             let config = ModelDefinition.getConfig(target, propertyKey);
             config.minLength = value;
-        }
+        };
     }
 
     maxLength<U extends KeysOfType<T, string>>(value: number) {
@@ -67,7 +79,7 @@ export class Decorators<T extends Model<any>> {
         ) {
             let config = ModelDefinition.getConfig(target, propertyKey);
             config.maxLength = value;
-        }
+        };
     }
 
     transform<V extends keyof T = keyof T, U extends keyof T = keyof T>(
@@ -83,7 +95,7 @@ export class Decorators<T extends Model<any>> {
             propertyKey
         ) {
 
-        }
+        };
     }
 }
 

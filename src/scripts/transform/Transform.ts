@@ -1,36 +1,4 @@
-export type TransformHash = {
-    [index: string]: {
-        [index: string]: (value: any) => any;
-    };
-};
-
-export interface NewConstructor<T> {
-    new(...params: any[]): T;
-}
-
-export interface FactoryConstructor<T> {
-    (...params: any[]): T;
-}
-export type Constructor<T> = NewConstructor<T> | FactoryConstructor<T>;
-
-function getID(constructor: Constructor<any>) {
-    if (constructor.name) {
-        return Symbol.for(constructor.name);
-    }
-    if (!constructor['_transformID']) {
-        constructor['_transformID'] = Symbol.for((Math.floor(Math.random() * 1000) + Date.now()).toString());
-    }
-    return constructor['_transformID'] as Symbol;
-}
-
-export interface ITransformHandler<T, U> {
-    from: Constructor<T>;
-    to: Constructor<U>;
-    fromTransform: (value: T) => U;
-    toTransform?: (value: U) => T;
-}
-
-export class TransformRegistry {
+export default class Transform {
     private fromHash: TransformHash = {};
 
     private registerSymbol<T, U>(from: Symbol, to: Symbol, transform: (value: T) => U) {
@@ -79,36 +47,68 @@ export class TransformRegistry {
         }
     }
 
-    private getConstructor<T>(value: T): Constructor<T> {
-        let type = typeof value;
-        switch (type) {
-            case 'boolean':
-                return Boolean as any;
-            case 'number':
-                return Number as any;
-            case 'string':
-                return String as any;
-            case 'object':
-                if (value === null) {
-                    return undefined;
-                }
-                return value.constructor as any;
-            case 'function':
-                return Function as any;
-            case 'bigint':
-                return BigInt as any;
-            // case 'undefined':
-            // case 'symbol':
-            default:
-                return undefined;
-        }
-    }
-
     convert<T, U>(value: T, to: Constructor<U>): U {
-        let from = this.getConstructor(value);
+        let from = getConstructor(value);
         return this.run(value, from, to);
     }
 }
+
+export interface NewConstructor<T> {
+    new(...params: any[]): T;
+}
+
+export interface FactoryConstructor<T> {
+    (...params: any[]): T;
+}
+export type Constructor<T> = NewConstructor<T> | FactoryConstructor<T>;
+
+function getID(constructor: Constructor<any>) {
+    if (constructor.name) {
+        return Symbol.for(constructor.name);
+    }
+    if (!constructor['_transformID']) {
+        constructor['_transformID'] = Symbol.for((Math.floor(Math.random() * 1000) + Date.now()).toString());
+    }
+    return constructor['_transformID'] as Symbol;
+}
+
+function getConstructor<T>(value: T): Constructor<T> {
+    let type = typeof value;
+    switch (type) {
+        case 'boolean':
+            return Boolean as any;
+        case 'number':
+            return Number as any;
+        case 'string':
+            return String as any;
+        case 'object':
+            if (value === null) {
+                return undefined;
+            }
+            return value.constructor as any;
+        case 'function':
+            return Function as any;
+        case 'bigint':
+            return BigInt as any;
+        // case 'undefined':
+        // case 'symbol':
+        default:
+            return undefined;
+    }
+}
+
+export interface ITransformHandler<T, U> {
+    from: Constructor<T>;
+    to: Constructor<U>;
+    fromTransform: (value: T) => U;
+    toTransform?: (value: U) => T;
+}
+
+export type TransformHash = {
+    [index: string]: {
+        [index: string]: (value: any) => any;
+    };
+};
 
 interface JsonObject {
     [index: string]: number | string | JsonObject;

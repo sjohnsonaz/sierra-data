@@ -87,6 +87,11 @@ export default class ModelDefinition {
         return this.propertyConfigs[key as any];
     }
 
+    static validate<T extends IClientData = any>(target: Model<T>) {
+        let modelDefinition = this.getModelDefinition(target as any);
+        let configs = modelDefinition.getConfigs();
+    }
+
     static getModelDefinition<T extends IClientData = any>(target: Model<T>) {
         if (target._modelDefinition) {
             if (!target.hasOwnProperty('_modelDefinition')) {

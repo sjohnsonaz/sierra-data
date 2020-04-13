@@ -1,51 +1,32 @@
 import { expect } from 'chai';
 
-import { TransformRegistry, Constructor } from "../transform/Transform";
+import { getDecorators } from './Decorators';
+import { Model } from '../SierraData';
 
-describe('TransformRegistry', function () {
-    let transformRegistry = new TransformRegistry();
+describe('Decorators', function () {
+    it('should support all Decorators', function () {
+        let {
+            defaultValue,
+            required,
+            min,
+            max
+        } = getDecorators<TestClass>();
 
-    transformRegistry.register(String, Number,
-        value => Number(value),
-        value => value.toString());
-    transformRegistry.register(String, Date,
-        function StringDate(value: string) {
-            return new Date(value);
-        },
-        function DateString(value: Date) {
-            return value.toISOString();
-        });
+        class TestClass extends Model<any> {
+            @min(0)
+            @required()
+            @defaultValue(1234)
+            testA: number;
 
-    function transform<
-        T,
-        V extends keyof T = keyof T,
-        U extends keyof T = keyof T
-    >(from?: Constructor<any>, to?: Constructor<any>) {
-        return function innerProp(target: T, propertyKey: V) {
+            @max(10)
+            testString: number;
+
+            @max(10)
+            testB: number;
         }
-    }
 
-    function newProp<T, V extends keyof T = keyof T>(config: (value: T[V]) => void, propertyKey?: V) {
-        return function innerProp(target: T, propertyKey: V) {
-            console.log(config(target[propertyKey]));
-        }
-    }
-
-    type CastProp<T, V extends keyof T = keyof T> = (config: (value: T[V]) => void, propertyKey?: V) => (target: T, propertyKey: V) => any;
-
-    it('Should convert strings to numbers', function () {
-        let otherProp: CastProp<Test> = newProp;
-        class Test {
-            @otherProp((value) => { })
-            testValue: number;
-
-            @otherProp((value) => { })
-            testValueB: string;
-        }
-        let testString = '1234';
-        let testNumber = 1234;
-
-        let result = transformRegistry.convert(testString, Number);
-        expect(result).to.equal(testNumber);
+        let testClass = new TestClass();
+        testClass.fromClient({});
+        expect(testClass.testA).to.equal(1234);
     });
 });
