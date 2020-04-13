@@ -6,6 +6,7 @@ import ModelDefinition from './ModelDefinition';
 import { prop } from '../decorators/Decorators';
 import Collection from "../collection/Collection";
 import CollectionFactory from '../collection/CollectionFactory';
+import Transform from '../transform/Transform';
 
 export default class Model<
     T extends IClientData,
@@ -236,6 +237,22 @@ export default class Model<
 
                 }
                 output[key] = config.toServer ? config.toServer(this[key]) : this[key];
+            }
+        });
+        return output;
+    }
+
+    transformTo(transformSetName: string, transform?: Transform) {
+        let output: T = {} as any;
+        let configs = this.getConfigs();
+        let transformConfig = ModelDefinition.getFullTransformConfig(this as any);
+        if (transform) {
+            transformConfig.setTransform(transform);
+        }
+        Object.keys(configs).forEach(key => {
+            let config = configs[key];
+            if (!config.hide) {
+                output[key] = transformConfig.to(transformSetName, key as never, this[key]);
             }
         });
         return output;

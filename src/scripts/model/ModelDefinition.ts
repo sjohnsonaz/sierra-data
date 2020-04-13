@@ -2,6 +2,7 @@ import { IClientData } from '../interfaces/IData';
 
 import Model from './Model';
 import { Constructor } from '../transform/Transform';
+import TransformConfig from '../transform/TransformConfig';
 
 export interface IPropertyConfig<
     T,
@@ -47,6 +48,7 @@ export default class ModelDefinition {
     propertyConfigs: {
         [index: string]: IPropertyConfig<any, any, any, any, any, any>;
     } = {};
+    transformConfig = new TransformConfig();
 
     constructor(parent?: ModelDefinition) {
         this.parent = parent;
@@ -88,9 +90,26 @@ export default class ModelDefinition {
         return this.propertyConfigs[key as any];
     }
 
+    getTransformConfigs() {
+        let transformConfigs: TransformConfig<any>[];
+        if (this.parent) {
+            transformConfigs = this.parent.getTransformConfigs();
+            transformConfigs.push(this.transformConfig);
+        } else {
+            transformConfigs = [this.transformConfig];
+        }
+        return transformConfigs;
+    }
+
     static validate<T extends IClientData = any>(target: Model<T>) {
         let modelDefinition = this.getModelDefinition(target as any);
         let configs = modelDefinition.getConfigs();
+    }
+
+    static getFullTransformConfig<T extends IClientData = any>(target: Model<T>) {
+        let modelDefinition = this.getModelDefinition(target as any);
+        let transformConfigs = modelDefinition.getTransformConfigs();
+        return TransformConfig.mergeAll(transformConfigs);
     }
 
     static getModelDefinition<T extends IClientData = any>(target: Model<T>) {

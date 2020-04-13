@@ -31,6 +31,10 @@ export class TransformSet<T> {
             return value as any;
         }
     }
+
+    static merge(destination: TransformSet<any>, source: TransformSet<any>) {
+        Object.assign(destination.transformHash, source.transformHash);
+    }
 }
 
 export default class TransformConfig<T> {
@@ -84,5 +88,30 @@ export default class TransformConfig<T> {
             let type = to || this.getType(key);
             return transformSet.from(this.transform, key, value, type);
         }
+    }
+
+    static merge(destination: TransformConfig<any>, source: TransformConfig<any>) {
+        destination.transform = source.transform;
+        Object.keys(source.transformSetHash).forEach(transformSetName => {
+            let destinationTransformSet = destination.transformSetHash[transformSetName];
+            let sourceTransformSet = source.transformSetHash[transformSetName];
+            if (!destinationTransformSet) {
+                destination.transformSetHash[transformSetName] = sourceTransformSet;
+            } else {
+                TransformSet.merge(destinationTransformSet, sourceTransformSet);
+            }
+        });
+        Object.keys(source.types).forEach(typeName => {
+            destination.types[typeName] = source.types[typeName];
+        });
+    }
+
+
+    static mergeAll(transformConfigs: TransformConfig<any>[]) {
+        let desination = new TransformConfig();
+        transformConfigs.forEach(transformConfig => {
+            TransformConfig.merge(desination, transformConfig);
+        });
+        return desination;
     }
 }

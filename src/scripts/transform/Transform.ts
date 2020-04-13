@@ -49,7 +49,11 @@ export default class Transform {
 
     convert<T, U>(value: T, to: Constructor<U>): U {
         let from = getConstructor(value);
-        return this.run(value, from, to);
+        if (!from) {
+            return value as any;
+        } else {
+            return this.run(value, from, to);
+        }
     }
 }
 
