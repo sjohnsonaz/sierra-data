@@ -29,4 +29,32 @@ describe('Decorators', function () {
         testClass.fromClient({});
         expect(testClass.testA).to.equal(1234);
     });
+
+    it('should support required decorator', function () {
+        let {
+            required
+        } = getDecorators<TestClass>();
+
+        class TestClass extends Model<any> {
+            @required()
+            requiredEmpty: number;
+
+            @required()
+            requiredFilled: number = 1;
+
+            @required()
+            requiredZero: number = 0;
+
+            @required()
+            requiredNull: number = null;
+        }
+
+        let testClass = new TestClass();
+        let invalidFields = testClass.validate();
+
+        expect(invalidFields).includes('requiredEmpty');
+        expect(invalidFields).includes('requiredNull');
+        expect(invalidFields).does.not.include('requiredFilled');
+        expect(invalidFields).does.not.include('requiredZero');
+    });
 });

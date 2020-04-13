@@ -98,7 +98,8 @@ export default class Model<
         Object.keys(configs).forEach(key => {
             let config = configs[key];
             if (config && config.required) {
-                if (!this[key]) {
+                let value = this[key];
+                if (!value && value !== 0) {
                     output.push(key);
                 }
             }
