@@ -2,10 +2,8 @@ import { expect } from 'chai';
 
 import Transform from "./Transform";
 import TransformConfig from './TransformConfig';
-import { Model, ModelDefinition } from '../SierraData';
-import { getDecorators } from '../decorators/Decorators';
 
-describe('Transform', function () {
+describe('TransformConfig', function () {
     let transformRegistry = new Transform();
 
     transformRegistry.register(String, Number,
@@ -19,43 +17,10 @@ describe('Transform', function () {
             return value.toISOString();
         });
 
-    let {
-        type,
-        transform
-    } = getDecorators<TestClass>()
-
-    class TestClass extends Model<any>{
-        //@type(Date)
-        @transform('client', String)
-        date: Date = new Date(Date.now());
-
-        //@type(Number)
-        @transform('client', String)
-        number: number = 1234;
-    }
-
-    let testClass = new TestClass();
-
-    it('Should convert to client', function () {
-        let output = testClass.transformTo('client', transformRegistry);
-        expect(output.date).to.equal(testClass.date.toISOString());
-        expect(output.number).to.equal('1234');
-    });
-
-    it('Should convert from client', function () {
-        let date = new Date(Date.now());
-        testClass.transformFrom('client', {
-            date: date,
-            number: '4321'
-        }, transformRegistry);
-        expect(testClass.date.getTime()).to.equal(testClass.date.getTime());
-        expect(testClass.number).to.equal(4321);
-    });
-
     let now = new Date(Date.now());
     let nowString = now.toISOString();
 
-    let transformConfig = new TransformConfig<TestClass>(transformRegistry);
+    let transformConfig = new TransformConfig<any>(transformRegistry);
     transformConfig.setType('date', Date);
 
     transformConfig.register('client', 'date', String);
