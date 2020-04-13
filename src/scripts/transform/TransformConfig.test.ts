@@ -29,17 +29,28 @@ describe('Transform', function () {
         @transform('client', String)
         date: Date = new Date(Date.now());
 
-        @type(String)
-        @transform('client', Number)
-        string: string = '1234';
+        @type(Number)
+        @transform('client', String)
+        number: number = 1234;
     }
 
     let testClass = new TestClass();
-    //let fullTransformConfig = ModelDefinition.getFullTransformConfig(testClass);
-    //console.log(fullTransformConfig.transformSetHash);
-    //console.log(fullTransformConfig.types);
-    let output = testClass.transformTo('client', transformRegistry);
-    console.log(output);
+
+    it('Should convert to client', function () {
+        let output = testClass.transformTo('client', transformRegistry);
+        expect(output.date).to.equal(testClass.date.toISOString());
+        expect(output.number).to.equal('1234');
+    });
+
+    it('Should convert from client', function () {
+        let date = new Date(Date.now());
+        testClass.transformFrom('client', {
+            date: date,
+            number: '4321'
+        }, transformRegistry);
+        expect(testClass.date.getTime()).to.equal(testClass.date.getTime());
+        expect(testClass.number).to.equal(4321);
+    });
 
     let now = new Date(Date.now());
     let nowString = now.toISOString();

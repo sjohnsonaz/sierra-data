@@ -258,6 +258,26 @@ export default class Model<
         return output;
     }
 
+    transformFrom<T>(transformSetName: string, data: T, transform?: Transform) {
+        data = data || {} as any;
+        this._baseData = data;
+        let configs = this.getConfigs();
+        let transformConfig = ModelDefinition.getFullTransformConfig(this as any);
+        if (transform) {
+            transformConfig.setTransform(transform);
+        }
+        Object.keys(configs).forEach(key => {
+            let config = configs[key];
+            if ((typeof config.default !== 'undefined') && (typeof data[key] === 'undefined')) {
+                let value = config.default;
+                this[key] = value;
+            } else {
+                let value = transformConfig.from(transformSetName, key as never, data[key]);
+                this[key] = value;
+            }
+        });
+    }
+
     toJSON() {
         return this.toClient(true);
     }
