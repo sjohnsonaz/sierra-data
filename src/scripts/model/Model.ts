@@ -261,7 +261,7 @@ export default class Model<
 
     transformFrom<T>(transformSetName: string, data: T, transform?: Transform) {
         data = data || {} as any;
-        this._baseData = data;
+        this._baseData = {};
         let configs = this.getConfigs();
         let transformConfig = ModelDefinition.getFullTransformConfig(this as any);
         if (transform) {
@@ -272,9 +272,11 @@ export default class Model<
             if ((typeof config.default !== 'undefined') && (typeof data[key] === 'undefined')) {
                 let value = config.default;
                 this[key] = value;
+                this._baseData[key] = value;
             } else {
                 let value = transformConfig.from(transformSetName, key as never, data[key]);
                 this[key] = value;
+                this._baseData[key] = value;
             }
         });
     }
