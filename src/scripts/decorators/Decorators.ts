@@ -38,7 +38,7 @@ export class Decorators<T extends Model<any>> {
             propertyKey: U
         ) {
             let config = ModelDefinition.getConfig(target, propertyKey);
-            config.required = true;
+            config.required = value;
         };
     }
 
@@ -79,6 +79,16 @@ export class Decorators<T extends Model<any>> {
         ) {
             let config = ModelDefinition.getConfig(target, propertyKey);
             config.maxLength = value;
+        };
+    }
+
+    trim<U extends keyof T>(value: boolean = true) {
+        return function (
+            target: T,
+            propertyKey: U
+        ) {
+            let config = ModelDefinition.getConfig(target, propertyKey);
+            config.trim = value;
         };
     }
 
