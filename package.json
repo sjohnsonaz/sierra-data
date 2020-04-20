@@ -12,7 +12,7 @@
     "build": "tsc",
     "clean": "rimraf ./dist",
     "prepublishOnly": "rimraf ./dist && tsc --declaration",
-    "test": "tsc && mocha ./dist/**/*.test.js",
+    "test": "tsc && mocha './dist/**/*.test.js'",
     "watch": "tsc --watch",
     "watch-link": "tsc --watch --declaration",
     "node": "node ./dist/scripts/SierraData.js",

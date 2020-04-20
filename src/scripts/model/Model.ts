@@ -147,6 +147,9 @@ export default class Model<
                 this._baseData[key] = value;
             } else {
                 let value = config.fromClient ? config.fromClient(data[key]) : data[key];
+                if (config.trim && typeof value === 'string') {
+                    value = value.trim();
+                }
                 this[key] = value;
                 this._baseData[key] = value;
             }
@@ -202,6 +205,9 @@ export default class Model<
                 this._baseData[key] = value;
             } else {
                 let value = config.fromServer ? config.fromServer(data[key]) : data[key];
+                if (config.trim && typeof value === 'string') {
+                    value = value.trim();
+                }
                 this[key] = value;
                 this._baseData[key] = value;
             }
@@ -275,6 +281,9 @@ export default class Model<
                 this._baseData[key] = value;
             } else {
                 let value = transformConfig.from(transformSetName, key as never, data[key]);
+                if (config.trim && typeof value === 'string') {
+                    value = value.trim();
+                }
                 this[key] = value;
                 this._baseData[key] = value;
             }
