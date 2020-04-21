@@ -1,4 +1,4 @@
-import { Service } from '../src/scripts/SierraData';
+import { Service } from '../src/SierraData';
 
 import PostModel from './PostModel';
 import PostCollection from './PostCollection';

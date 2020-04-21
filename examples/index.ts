@@ -1,7 +1,7 @@
 import Sierra, { BodyMiddleware } from 'sierra';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
-import { CollectionFactory } from '../src/scripts/SierraData';
+import { CollectionFactory } from '../src/SierraData';
 
 import PostService from './PostService';
 import PostCollection from './PostCollection';

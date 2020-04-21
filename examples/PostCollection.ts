@@ -1,4 +1,4 @@
-import { Collection, CollectionFactory } from '../src/scripts/SierraData';
+import { Collection, CollectionFactory } from '../src/SierraData';
 import PostModel from './PostModel';
 
 export default class PostCollection extends Collection<PostModel> {

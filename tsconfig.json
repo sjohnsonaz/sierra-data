@@ -22,7 +22,8 @@
   },
   "include": [
     "src",
-    "examples"
+    "examples",
+    "mocha"
   ],
   "compileOnSave": true,
   "buildOnSave": false

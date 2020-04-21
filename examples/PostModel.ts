@@ -1,4 +1,4 @@
-import { prop, ObjectId, Model } from '../src/scripts/SierraData';
+import { prop, ObjectId, Model } from '../src/SierraData';
 
 import { IPost } from './IPost';
 
