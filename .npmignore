@@ -5,31 +5,31 @@ node_modules/
 docs/
 
 # Source directory
-src/
+# src/
+examples/
+mocha/
 
 # Build directory
-dist/bundle/
-dist/tests/
+dist/examples/
 dist/mocha/
 
 # Sourcemap, log, packed files
-*.map
+# *.map
 *.log
 *.tgz
+*.test.ts
+*.test.d.ts
+*.test.js
+*.test.js.map
 
 # Ignore files
 .gitignore
 .npmignore
 
 # Build configuration files
+.github/
 tsconfig.json
-webpack.config.js
-webpack.dev.config.js
-.travis.yml
+.mocharc.yml
 
 # Editor configuration files
 .vscode/
-
-# MkDocs files
-mkdocs.yml
-site

@@ -1,7 +1,0 @@
-site_name: Sierra Data
-site_url: https://sjohnsonaz.github.io/sierra-data
-repo_url: https://github.com/sjohnsonaz/sierra-data
-copyright: Copyright &copy; 2017 Sean Johnson
-pages:
-    - Home: index.md
-theme: readthedocs
