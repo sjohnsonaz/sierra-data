@@ -1,16 +1,20 @@
-import { prop, ObjectId, Model } from '../src/SierraData';
+import { prop, Model, getDecorators } from '../src/SierraData';
 
 import { IPost } from './IPost';
 
-export default class PostModel extends Model<IPost> {
-    @prop({}) created: Date;
-    @prop({}) modified: Date;
+let { transform, trim } = getDecorators<PostModel>();
 
-    @prop({
-        type: String,
-        trim: true
-    }) title: string;
-    @prop({}) body: String;
+export default class PostModel extends Model<IPost> {
+    @transform('client', String)
+    created: Date;
+
+    @transform('client', String)
+    modified: Date;
+
+    @trim()
+    title: string;
+
+    @prop() body: String;
 
     beforeInsert() {
         this.created = new Date(Date.now());
