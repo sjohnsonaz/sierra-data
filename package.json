@@ -23,7 +23,7 @@
   },
   "peerDependencies": {
     "mongodb": "3.5.5",
-    "sierra": "^0.4.1"
+    "sierra": "^0.5.0"
   },
   "devDependencies": {
     "@types/chai": "4.2.11",
@@ -35,7 +35,7 @@
     "mongodb": "3.5.5",
     "mongodb-memory-server": "6.5.2",
     "rimraf": "3.0.2",
-    "sierra": "^0.4.1",
+    "sierra": "^0.5.0",
     "tsc-watch": "4.2.3",
     "typescript": "3.8.3"
   }
