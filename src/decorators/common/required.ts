@@ -1,8 +1,9 @@
 import Model from '../../model/Model';
-import ModelDefinition, { IPropertyConfig } from '../../model/ModelDefinition';
+import ModelDefinition from '../../model/ModelDefinition';
 
-export class Decorators<T extends Model<any>> {
-    required<U extends keyof T>(value: boolean = true) {
+let _required;
+export function Required<T extends Model<any>>() {
+    function required<U extends keyof T>(value: boolean = true) {
         return function (
             target: T,
             propertyKey: U
@@ -11,10 +12,8 @@ export class Decorators<T extends Model<any>> {
             config.required = value;
         };
     }
-}
-
-export namespace Required {
-    export function req() {
-        console.log('1234123412343');
+    if (!_required) {
+        _required = required;
     }
+    return _required;
 }
